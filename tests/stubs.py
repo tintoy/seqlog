@@ -8,6 +8,10 @@ class StubStructuredLogHandler(logging.Handler):
         self.records = []
         self.messages = []
 
+    @property
+    def no_records(self):
+        return len(self.records) == 0
+
     def pop(self):
         return (
             self.records.pop(),
