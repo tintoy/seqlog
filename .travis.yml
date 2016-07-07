@@ -25,7 +25,7 @@ deploy:
   distributions: sdist bdist_wheel
   user: tintoy
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: "eJRuVYk3dyu6bQufcSse0wGVhmTBw4SSO1bDwkbML8QFk/ybIjGssOmMWPjakcp/YWMXnCff8MOE8e/tenfs5ec6rIFqxooSfAHly/b4/1Cqcnr8K+0lFaoHdrQeDgkWMrYASOkmxlL2T8PUdFB/fcpfVHtCNbazCJ3Ujd+98IaxRZROa6rAiDXBq7EYKWg1+3XxZlTacXJGAinAClE5AW30pkrvjQlgBY7qExR01QjS9sCejop5fMNCz+QAE8yorEWPM8+sh9u8xjuvl9uQqx4acX0ndLABv2cUawGXxYMB2RL9Zow4z5qnCWBzMqeqDZIFrFytmYIzo7OnrO/Tx7a5UmCP28t9HSGpP8YAF97xwntx3BylsEYEa9v3suVhlBHuCmnx9sAJr31k00903A476BlTb4AHhx2e3Xaa19Mea3QNZlTFhj5Re3GyLvahbT5zqVl1ZfRcQoW6pfooXv222fZGpu5lBHX8g/xN8L9Rnb8l/kPd0Gjeqy8rkHJMWt5b22zapxshfJfLlvhulPnYKJaHRNQM/Tk2RgHrTxvtXfhhmF2JQ941aeNmfHxAoZX4Uswb0+3MEkNImmQu6gGnp9ciZ1bFeaQTxDtYBuCunxfSDPTzoMZFeTSEf9gmB6M4jjqfcY6WzSIVdJviVtIvAqzGoovyPPxhLxa0WbU="
   on:
     tags: true
     repo: tintoy/pyseq
