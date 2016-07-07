@@ -18,23 +18,8 @@ Seq logging adapter for Python.
      :alt: Updates
 
 
-SeqLog enables logging from Python to Seq."
+SeqLog enables logging from Python to Seq.
 
 
 * Free software: MIT license
 * Documentation: https://seqlog.readthedocs.io.
-
-
-Features
---------
-
-* TODO
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
