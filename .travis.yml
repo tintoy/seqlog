@@ -12,8 +12,9 @@ env:
   - TOXENV=py26
   - TOXENV=pypy
 
-install: pip install -r requirements.txt --use-mirrors
-install: pip install -U tox
+install:
+  - pip install -r requirements.txt --use-mirrors
+  - pip install -U tox
 
 # command to run tests, e.g. python setup.py test
 script: tox -e ${TOXENV}
