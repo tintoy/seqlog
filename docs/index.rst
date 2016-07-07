@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Seq logging adapter for Python.'s documentation!
-======================================
+Seq logging adapter for Python
+==============================
 
 Contents:
 
@@ -15,7 +15,8 @@ Contents:
    installation
    usage
    contributing
-   authorshistory
+   authors
+   history
 
 Indices and tables
 ==================

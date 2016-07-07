@@ -39,7 +39,7 @@ class TestLogRecordConsumer(object):
 
             batch_received.set()
 
-        consumer = QueueConsumer(record_queue, handler, batch_size=2)
+        consumer = QueueConsumer("Test Consumer", record_queue, handler, batch_size=2)
         consumer.start()
 
         batch_received.wait(timeout=2000)
@@ -61,7 +61,7 @@ class TestLogRecordConsumer(object):
 
             batch_received.set()
 
-        consumer = QueueConsumer(record_queue, handler, batch_size=2)
+        consumer = QueueConsumer("Test Consumer", record_queue, handler, batch_size=2)
         consumer.start()
 
         record_queue.put("Item1")
@@ -89,7 +89,7 @@ class TestLogRecordConsumer(object):
 
             batch_received.set()
 
-        consumer = QueueConsumer(record_queue, handler, batch_size=3, batch_flush_timeout=200)
+        consumer = QueueConsumer("Test Consumer", record_queue, handler, batch_size=3, auto_flush_timeout=200)
         consumer.start()
 
         record_queue.put("Item1")

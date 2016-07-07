@@ -13,10 +13,6 @@ Seq logging adapter for Python.
         :target: https://seqlog.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/tintoy/seqlog/shield.svg
-     :target: https://pyup.io/repos/github/tintoy/seqlog/
-     :alt: Updates
-
 
 SeqLog enables logging from Python to Seq.
 
