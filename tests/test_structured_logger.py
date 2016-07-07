@@ -11,8 +11,9 @@ Tests for `seqlog` module.
 import logging
 import pytest
 
+import tests.assertions as expect
+
 from seqlog.structured_logging import StructuredLogger
-from tests.assertions import *
 from tests.stubs import StubStructuredLogHandler
 
 
@@ -24,9 +25,9 @@ class TestStructuredLogger(object):
 
         record = handler.pop_record()
 
-        expect_log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
-        expect_log_level(record, logging.INFO)
-        expect_log_ordinal_args(record, "Foo", "Bar", 7)
+        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_level(record, logging.INFO)
+        expect.log_ordinal_args(record, "Foo", "Bar", 7)
 
     def test_named_arguments_message(self):
         logger, handler = create_logger()
@@ -40,9 +41,9 @@ class TestStructuredLogger(object):
 
         record = handler.pop_record()
 
-        expect_log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
-        expect_log_level(record, logging.INFO)
-        expect_log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7)
+        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_level(record, logging.INFO)
+        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7)
 
 
 @pytest.fixture(scope="session")

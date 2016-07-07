@@ -1,4 +1,4 @@
-def expect_log_message(record, expected_message):
+def log_message(record, expected_message):
     """
     Assert that a log record has the expected message.
     :param record: The LogRecord.
@@ -13,7 +13,7 @@ def expect_log_message(record, expected_message):
     )
 
 
-def expect_log_template(record, expected_template):
+def log_template(record, expected_template):
     """
     Assert that a log record has the expected template.
     :param record: The LogRecord.
@@ -28,7 +28,7 @@ def expect_log_template(record, expected_template):
     )
 
 
-def expect_log_level(record, expected_level):
+def log_level(record, expected_level):
     """
     Assert that a log record has the expected level (severity).
     :param record: The LogRecord.
@@ -43,7 +43,7 @@ def expect_log_level(record, expected_level):
     )
 
 
-def expect_log_ordinal_args(record, *expected_args):
+def log_ordinal_args(record, *expected_args):
     """
     Assert that a log record has the expected ordinal format arguments.
     :param record: The LogRecord.
@@ -62,7 +62,7 @@ def expect_log_ordinal_args(record, *expected_args):
     )
 
 
-def expect_log_named_args(record, **expected_args):
+def log_named_args(record, **expected_args):
     """
     Assert that a log record has the expected named format arguments.
     :param record: The LogRecord.

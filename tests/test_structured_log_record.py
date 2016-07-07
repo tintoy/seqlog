@@ -12,10 +12,14 @@ import logging
 
 
 from seqlog.structured_logging import StructuredLogRecord
-from tests.assertions import *
+import tests.assertions as expect
 
 
 class TestStructuredLogRecord(object):
+    #
+    # Named arguments
+    #
+
     def test_named_arguments_message(self):
         record = self.create_test_log_record(
             logging.INFO,
@@ -25,9 +29,7 @@ class TestStructuredLogRecord(object):
             Argument3=7
         )
 
-        expect_log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
-        expect_log_level(record, logging.INFO)
-        expect_log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7)
+        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_named_arguments_template(self):
         record = self.create_test_log_record(
@@ -38,7 +40,33 @@ class TestStructuredLogRecord(object):
             Argument3=7
         )
 
-        expect_log_template(record, "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}")
+        expect.log_template(record, "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}")
+
+    def test_named_arguments_level(self):
+        record = self.create_test_log_record(
+            logging.WARNING,
+            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}",
+            Argument1="Foo",
+            Argument2="Bar",
+            Argument3=7
+        )
+
+        expect.log_level(record, logging.WARNING)
+
+    def test_named_arguments_args(self):
+        record = self.create_test_log_record(
+            logging.WARNING,
+            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}",
+            Argument1="Foo",
+            Argument2="Bar",
+            Argument3=7
+        )
+
+        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7)
+
+    #
+    # Ordinal arguments
+    #
 
     def test_ordinal_arguments_message(self):
         record = self.create_test_log_record(
@@ -49,20 +77,40 @@ class TestStructuredLogRecord(object):
             7
         )
 
-        expect_log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
-        expect_log_level(record, logging.INFO)
-        expect_log_ordinal_args(record, "Foo", "Bar", 7)
+        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_ordinal_arguments_template(self):
         record = self.create_test_log_record(
             logging.INFO,
             "Arg1 = '%s', Arg2 = '%s', Arg3 = %d",
-            Argument1="Foo",
-            Argument2="Bar",
-            Argument3=7
+            "Foo",
+            "Bar",
+            7
         )
 
-        expect_log_template(record, "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}")
+        expect.log_template(record, "Arg1 = '%s', Arg2 = '%s', Arg3 = %d")
+
+    def test_ordinal_arguments_level(self):
+        record = self.create_test_log_record(
+            logging.WARNING,
+            "Arg1 = '%s', Arg2 = '%s', Arg3 = %d",
+            "Foo",
+            "Bar",
+            7
+        )
+
+        expect.log_level(record, logging.WARNING)
+
+    def test_ordinal_arguments_args(self):
+        record = self.create_test_log_record(
+            logging.INFO,
+            "Arg1 = '%s', Arg2 = '%s', Arg3 = %d",
+            "Foo",
+            "Bar",
+            7
+        )
+
+        expect.log_ordinal_args(record, "Foo", "Bar", 7)
 
     @staticmethod
     def create_test_log_record(level, message, *ordinal_args, **named_args):
