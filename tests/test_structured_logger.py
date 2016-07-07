@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-test_seqlog
+test_structured_logger
 ----------------------------------
 
-Tests for `seqlog` module.
+Tests for `seqlog.structured_logging.StructuredLogger` class.
 """
 
 import logging

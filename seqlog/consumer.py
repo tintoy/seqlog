@@ -2,7 +2,7 @@ from queue import Queue, Empty
 from threading import Thread
 
 
-class LogRecordConsumer(Thread):
+class LogRecordConsumer:
     """
     Consumes log records from a queue.
     """
@@ -22,11 +22,7 @@ class LogRecordConsumer(Thread):
         :type batch_size: int
         """
 
-        super().__init__(
-            name="Seq log entry consumer",
-            daemon=True
-        )
-
+        self.consumer_thread = None
         self.current_batch = []
         self.is_running = False
 
@@ -42,9 +38,13 @@ class LogRecordConsumer(Thread):
         if self.is_running:
             raise Exception("The consumer is already running.")
 
+        self.consumer_thread = Thread(
+            name="Seq log entry consumer",
+            target=self._process_queue,
+            daemon=True
+        )
         self.is_running = True
-
-        super().start()
+        self.consumer_thread.start()
 
     def stop(self):
         """
@@ -55,14 +55,12 @@ class LogRecordConsumer(Thread):
             raise Exception("The consumer is not running.")
 
         self.is_running = False
-        self.join()
+        self.consumer_thread = None
 
-    def run(self):
+    def _process_queue(self):
         """
-        Run the consumer thread.
+        Process the record queue.
         """
-
-        super().run()
 
         while self.is_running:
             try:
@@ -78,4 +76,3 @@ class LogRecordConsumer(Thread):
                 self.current_batch.clear()
 
                 self.callback(current_batch)
-
