@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
-test_pyseq
+test_seqlog
 ----------------------------------
 
-Tests for `pyseq` module.
+Tests for `seqlog` module.
 """
 
 import pytest
 
 
-from pyseq import structured_logging
+from seqlog import seqlog
 
 
-class TestPyseq(object):
+class TestSeqlog(object):
 
     @classmethod
     def setup_class(cls):

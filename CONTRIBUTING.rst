@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/tintoy/pyseq/issues.
+Report bugs at https://github.com/tintoy/seqlog/issues.
 
 If you are reporting a bug, please include:
 
@@ -38,14 +38,14 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-PySeq could always use more documentation, whether as part of the
-official PySeq docs, in docstrings, or even on the web in blog posts,
+Seq logging adapter for Python. could always use more documentation, whether as part of the
+official Seq logging adapter for Python. docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/tintoy/pyseq/issues.
+The best way to send feedback is to file an issue at https://github.com/tintoy/seqlog/issues.
 
 If you are proposing a feature:
 
@@ -57,17 +57,17 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `pyseq` for local development.
+Ready to contribute? Here's how to set up `seqlog` for local development.
 
-1. Fork the `pyseq` repo on GitHub.
+1. Fork the `seqlog` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/pyseq.git
+    $ git clone git@github.com:your_name_here/seqlog.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv pyseq
-    $ cd pyseq/
+    $ mkvirtualenv seqlog
+    $ cd seqlog/
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -78,7 +78,7 @@ Ready to contribute? Here's how to set up `pyseq` for local development.
 
 5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
 
-    $ flake8 pyseq tests
+    $ flake8 seqlog tests
     $ python setup.py test or py.test
     $ tox
 
@@ -102,7 +102,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.6, 2.7, 3.3, 3.4 and 3.5, and for PyPy. Check
-   https://travis-ci.org/tintoy/pyseq/pull_requests
+   https://travis-ci.org/tintoy/seqlog/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -110,5 +110,5 @@ Tips
 
 To run a subset of tests::
 
-$ py.test tests.test_pyseq
+$ py.test tests.test_seqlog
 

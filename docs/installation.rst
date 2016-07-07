@@ -8,13 +8,13 @@ Installation
 Stable release
 --------------
 
-To install PySeq, run this command in your terminal:
+To install Seq logging adapter for Python., run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install pyseq
+    $ pip install seqlog
 
-This is the preferred method to install PySeq, as it will always install the most recent stable release. 
+This is the preferred method to install Seq logging adapter for Python., as it will always install the most recent stable release. 
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -26,19 +26,19 @@ you through the process.
 From sources
 ------------
 
-The sources for PySeq can be downloaded from the `Github repo`_.
+The sources for Seq logging adapter for Python. can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/tintoy/pyseq
+    $ git clone git://github.com/tintoy/seqlog
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/tintoy/pyseq/tarball/master
+    $ curl  -OL https://github.com/tintoy/seqlog/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/tintoy/pyseq
-.. _tarball: https://github.com/tintoy/pyseq/tarball/master
+.. _Github repo: https://github.com/tintoy/seqlog
+.. _tarball: https://github.com/tintoy/seqlog/tarball/master

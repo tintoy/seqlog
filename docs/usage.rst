@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use PySeq in a project::
+To use Seq logging adapter for Python. in a project::
 
-    import pyseq
+    import seqlog

@@ -2,9 +2,9 @@
 
 import logging
 
-import pyseq
+import seqlog
 
-pyseq.log_to_console(level=logging.INFO, override_root_logger=True)
+seqlog.log_to_console(level=logging.INFO, override_root_logger=True)
 
 logger1 = logging.getLogger("A")
 logger1.info("Hello, {name}!", name="world")

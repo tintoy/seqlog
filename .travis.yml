@@ -1,6 +1,3 @@
-# Config file for automatic testing at travis-ci.org
-# This file will be regenerated if you run travis_pypi_setup.py
-
 language: python
 python: 3.5
 
@@ -10,22 +7,34 @@ env:
   - TOXENV=py33
   - TOXENV=py27
   - TOXENV=py26
+  - TOXENV=pypy
 
-install:
-  - pip install -U tox
+install: pip install -U tox
 
-# command to run tests, e.g. python setup.py test
 script: tox -e ${TOXENV}
 
-# After you create the Github repo and add it to Travis, run the
-# travis_pypi_setup.py script to finish PyPI deployment setup
 deploy:
+  on:
+    condition: $TOXENV == py27
+    repo: tintoy/seqlog
+    tags: true
+
   provider: pypi
-  distributions: sdist bdist_wheel
   user: tintoy
   password:
-    secure: "eJRuVYk3dyu6bQufcSse0wGVhmTBw4SSO1bDwkbML8QFk/ybIjGssOmMWPjakcp/YWMXnCff8MOE8e/tenfs5ec6rIFqxooSfAHly/b4/1Cqcnr8K+0lFaoHdrQeDgkWMrYASOkmxlL2T8PUdFB/fcpfVHtCNbazCJ3Ujd+98IaxRZROa6rAiDXBq7EYKWg1+3XxZlTacXJGAinAClE5AW30pkrvjQlgBY7qExR01QjS9sCejop5fMNCz+QAE8yorEWPM8+sh9u8xjuvl9uQqx4acX0ndLABv2cUawGXxYMB2RL9Zow4z5qnCWBzMqeqDZIFrFytmYIzo7OnrO/Tx7a5UmCP28t9HSGpP8YAF97xwntx3BylsEYEa9v3suVhlBHuCmnx9sAJr31k00903A476BlTb4AHhx2e3Xaa19Mea3QNZlTFhj5Re3GyLvahbT5zqVl1ZfRcQoW6pfooXv222fZGpu5lBHX8g/xN8L9Rnb8l/kPd0Gjeqy8rkHJMWt5b22zapxshfJfLlvhulPnYKJaHRNQM/Tk2RgHrTxvtXfhhmF2JQ941aeNmfHxAoZX4Uswb0+3MEkNImmQu6gGnp9ciZ1bFeaQTxDtYBuCunxfSDPTzoMZFeTSEf9gmB6M4jjqfcY6WzSIVdJviVtIvAqzGoovyPPxhLxa0WbU="
-  on:
-    tags: true
-    repo: tintoy/pyseq
-    condition: $TOXENV == py27
+    secure: !!binary |
+      Vkc5VUxuc1dDQWxHdkJ3SEpTR2JkcXhaOGNvTklONVRxaG8vOSt0Z2llMENpT3FIVFVPZjZGZDBX
+      cnpVUjNmMy9zaTFaU01yRDBYU2pWd3F3TzBOcEhscTRGMWVwN2Q1eUExcWFEK09TNnhzUU1IazFX
+      MURvWEN1cU03WXlpR1pLdlFRVnZqR2pMN3NtdXIzKzA1VDd3RUl3Y0c4bVhmR3VyM2xaMGlNOENm
+      L0MrUG5GdUNhSmtCOWJDdDk0MG5XY1FOQXlxMFo4L1B1L2dKekZVbmxnbHZ5ODFuVkFKNUhvdzMy
+      VjdGNTIrbDBxYmhVQnphRWFRRkQrSXF5LzVSaTB0ekFPVUhWL1lpV1FRc1BFUHlaSzdyZmx6alll
+      YjdEOWZXWmgyMTdkMWRUUDk1dkluenJxZTF4NDc3SE8yNlYyUlh2MVZuOXczNGxWNHU2dkx1a2V6
+      YTU4cXpra1hSeTNYZEZZMWJlU0hDTlliU2J2cnhSVExSVnZQa2NEM0RMdVdFcjNzbFBWVlRrZ0pT
+      T0R5bUZQWjNZejFDdlZDaGpWc1ZqaCtSZTF3UHJEVEI2S0tTcjV5QWJKenRJNjJXU1FMNG5oWXdX
+      b3JQbFFmQlg3eW9ZSnIyd3JmZkcxL3FmTndoNyt5NkU0RlJRbmRnY3ZHcVN4MHRkRCtCTWN3bjd3
+      cDBjbGtVZXhucVQ3QjllaTkwOTloQ2tHbXd1SUNmbzRUTTlrbklvanI0OEEzR1FEak5LaGM0SWVq
+      cEprWnBZMVpCY2Y5akl4WkhWSkdyV1YvTkhMZWt1bko5cVc0b0ErUjVXVlJpK1BYWHJ0cEJKNEFR
+      ZWp5MU5DWVZVRU1jV3NWaDlJaCs2aVRKNjgvWU9HVDczSnF3MWpPa3lWbkthZHVoOHNhemVhdDA9
+
+  distributions: sdist bdist_wheel
+

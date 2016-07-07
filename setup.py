@@ -18,23 +18,23 @@ test_requirements = [
 ]
 
 setup(
-    name='pyseq',
+    name='seqlog',
     version='0.0.1',
-    description="Seq structured logging support for Python.",
+    description="SeqLog enables logging from Python to Seq."",
     long_description=readme + '\n\n' + history,
     author="Adam Friedman",
     author_email='tintoy@tintoy.io',
-    url='https://github.com/tintoy/pyseq',
+    url='https://github.com/tintoy/seqlog',
     packages=[
-        'pyseq',
+        'seqlog',
     ],
-    package_dir={'pyseq':
-                 'pyseq'},
+    package_dir={'seqlog':
+                 'seqlog'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",
     zip_safe=False,
-    keywords='pyseq',
+    keywords='seqlog',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

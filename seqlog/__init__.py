@@ -4,6 +4,10 @@ import logging
 
 from .structured_logging import StructuredLogRecord, StructuredLogger, SeqLogHandler, ConsoleStructuredLogHandler
 
+__author__ = 'Adam Friedman'
+__email__ = 'tintoy@tintoy.io'
+__version__ = '0.0.1'
+
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING, override_root_logger=False, **kwargs):
     """
