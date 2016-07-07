@@ -9,7 +9,22 @@ def expect_log_message(record, expected_message):
 
     assert (
         expected_message == actual_message,
-        "Unexpected log message: '{}'".format(actual_message)
+        "Unexpected log message: '{}' (expected '{}')".format(actual_message, expected_message)
+    )
+
+
+def expect_log_template(record, expected_template):
+    """
+    Assert that a log record has the expected template.
+    :param record: The LogRecord.
+    :param expected_template: The expected template.
+    """
+
+    actual_template = record.msg
+
+    assert (
+        expected_template == actual_template,
+        "Unexpected log template: '{}' (expected '{}')".format(actual_template, expected_template)
     )
 
 
@@ -24,7 +39,7 @@ def expect_log_level(record, expected_level):
 
     assert (
         expected_level == actual_level,
-        "Unexpected log level: '{}'".format(actual_level)
+        "Unexpected log level: '{}' (expected '{}')".format(actual_level, expected_level)
     )
 
 
@@ -40,8 +55,9 @@ def expect_log_ordinal_args(record, *expected_args):
 
     assert (
         expected_args == actual_args,
-        "Unexpected ordinal arguments: {}".format(
-            repr(actual_args)
+        "Unexpected ordinal arguments: {}\nExpected ordinal arguments: {}".format(
+            repr(actual_args),
+            repr(expected_args)
         )
     )
 
@@ -58,7 +74,8 @@ def expect_log_named_args(record, **expected_args):
 
     assert (
         expected_args == actual_args,
-        "Unexpected named arguments: {}".format(
-            repr(actual_args)
+        "Unexpected named arguments: {}\nExpected ordinal arguments: {}".format(
+            repr(actual_args),
+            repr(expected_args)
         )
     )
