@@ -11,7 +11,7 @@ Tests for `seqlog` module.
 import pytest
 
 
-from seqlog import seqlog
+from seqlog import structured_logging
 
 
 class TestSeqlog(object):
