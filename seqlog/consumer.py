@@ -1,13 +1,17 @@
 from queue import Queue, Empty
-from threading import Thread
+from threading import Thread, RLock, Timer
+from time import sleep
 
 
-class LogRecordConsumer:
+class QueueConsumer:
     """
     Consumes log records from a queue.
     """
 
-    def __init__(self, queue, callback, batch_size):
+    # Pseudo-record used to abort processing of the record queue.
+    _stop_processing = object()
+
+    def __init__(self, queue, callback, batch_size, batch_flush_timeout=None):
         """
         Create a new log record consumer.
 
@@ -20,15 +24,39 @@ class LogRecordConsumer:
         :type callback: callable
         :param batch_size: The maximum number of records per batch.
         :type batch_size: int
+        :param batch_flush_timeout: An optional timeout (in milliseconds) before each batch is flushed.
+        :type batch_flush_timeout: int
         """
 
-        self.consumer_thread = None
-        self.current_batch = []
         self.is_running = False
+
+        self.consumer_thread = None
+        self.flush_thread = None
+
+        self.current_batch = []
+        self.batch_lock = RLock()
 
         self.queue = queue
         self.callback = callback
         self.batch_size = batch_size
+        self.batch_flush_timeout = batch_flush_timeout
+
+    def flush_current_batch(self):
+        """
+        Flush the current batch (if any).
+        """
+
+        self.batch_lock.acquire()
+        try:
+            if not self.is_running:
+                return
+
+            current_batch = self.current_batch[:]
+            self.current_batch.clear()
+
+            self.callback(current_batch)
+        finally:
+            self.batch_lock.release()
 
     def start(self):
         """
@@ -40,11 +68,19 @@ class LogRecordConsumer:
 
         self.consumer_thread = Thread(
             name="Seq log entry consumer",
-            target=self._process_queue,
+            target=self._queue_processor,
             daemon=True
         )
         self.is_running = True
         self.consumer_thread.start()
+
+        if self.batch_flush_timeout:
+            self.flush_thread = Thread(
+                name="Seq log entry consumer flush",
+                target=self._batch_flusher,
+                daemon=True
+            )
+            self.flush_thread.start()
 
     def stop(self):
         """
@@ -54,25 +90,47 @@ class LogRecordConsumer:
         if not self.is_running:
             raise Exception("The consumer is not running.")
 
+        # If the processor thread is blocked waiting for a new record, this stop it gracefully.
+        self.queue.put(
+            QueueConsumer._stop_processing
+        )
         self.is_running = False
+        self.flush_thread = None
         self.consumer_thread = None
 
-    def _process_queue(self):
+    def _queue_processor(self):
         """
         Process the record queue.
         """
 
         while self.is_running:
             try:
-                record = self.queue.get(block=True, timeout=500)
+                record = self.queue.get(block=True)
             except Empty:
                 pass
             else:
-                self.current_batch.append(record)
-                if len(self.current_batch) < self.batch_size:
+                if record is QueueConsumer._stop_processing:
+                    self.stop()
+
                     continue
 
-                current_batch = self.current_batch[:]
-                self.current_batch.clear()
+                self.batch_lock.acquire()
+                try:
+                    self.current_batch.append(record)
+                    if len(self.current_batch) >= self.batch_size:
+                        self.flush_current_batch()
+                finally:
+                    self.batch_lock.release()
 
-                self.callback(current_batch)
+    def _batch_flusher(self):
+        """
+        Thread that flushes the current batch after a timeout appears.
+        """
+
+        while self.is_running:
+            sleep(self.batch_flush_timeout / 1000)
+
+            if not self.is_running:
+                return
+
+            self.flush_current_batch()
