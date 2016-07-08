@@ -9,7 +9,8 @@ __email__ = 'tintoy@tintoy.io'
 __version__ = '0.0.1'
 
 
-def log_to_seq(server_url, api_key=None, level=logging.WARNING, override_root_logger=False, **kwargs):
+def log_to_seq(server_url, api_key=None, level=logging.WARNING,
+               batch_size=10, auto_flush_timeout=None, override_root_logger=False, **kwargs):
     """
     Configure the logging system to send log entries to Seq.
 
@@ -17,6 +18,9 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING, override_root_lo
     :param server_url: The Seq server URL.
     :param api_key: The Seq API key (optional).
     :param level: The minimum level at which to log.
+    :param batch_size: The number of log entries to collect before publishing to Seq.
+    :param auto_flush_timeout: If specified, the time (in milliseconds) before
+    the current batch is automatically flushed.
     :param override_root_logger: Override the root logger, too?
     Note - this might cause problems if third-party components try to be clever when using the logging.XXX functions.
     """
@@ -25,7 +29,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING, override_root_lo
     logging.basicConfig(
         style='{',
         handlers=[
-            SeqLogHandler(server_url, api_key)
+            SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
         ],
         level=level,
         **kwargs

@@ -1,16 +1,16 @@
 seqlog package
 ==============
 
-Submodules
-----------
+Module contents
+---------------
 
-seqlog.consumer module
-----------------------
-
-.. automodule:: seqlog.consumer
+.. automodule:: seqlog
     :members:
     :undoc-members:
     :show-inheritance:
+
+Submodules
+----------
 
 seqlog.structured_logging module
 --------------------------------
@@ -20,11 +20,3 @@ seqlog.structured_logging module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: seqlog
-    :members:
-    :undoc-members:
-    :show-inheritance:
