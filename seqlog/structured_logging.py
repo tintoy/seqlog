@@ -2,7 +2,12 @@
 
 import datetime
 import logging
+import sys
+from queue import Queue
+
 import requests
+
+from .consumer import QueueConsumer
 
 # Well-known keyword arguments used by the logging system.
 _well_known_logger_kwargs = [
@@ -134,11 +139,18 @@ class ConsoleStructuredLogHandler(logging.Handler):
 class SeqLogHandler(logging.Handler):
     """
     Log handler that posts to Seq.
-
-    TODO: Implement periodic (batched) posting.
     """
 
-    def __init__(self, server_url, api_key=None):
+    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None):
+        """
+        Create a new `SeqLogHandler`.
+        :param server_url: The Seq server URL.
+        :param api_key: The Seq API key (if any).
+        :param batch_size: The number of messages to batch up before posting to Seq.
+        :param auto_flush_timeout: If specified, the time (in milliseconds) before
+        the current batch is automatically flushed.
+        """
+
         super().__init__()
 
         self.server_url = server_url
@@ -150,46 +162,99 @@ class SeqLogHandler(logging.Handler):
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
 
+        self.log_queue = Queue()
+        self.consumer = QueueConsumer(
+            name="SeqLogHandler",
+            queue=self.log_queue,
+            callback=self.publish_log_batch,
+            batch_size=batch_size,
+            auto_flush_timeout=auto_flush_timeout
+        )
+        self.consumer.start()
+
+    def flush(self):
+        try:
+            self.consumer.flush()
+        finally:
+            super().flush()
+
     def emit(self, record):
-        if isinstance(record, StructuredLogRecord):
-            # Named format arguments (and, therefore, log event properties).
-            request_body = {
-                "Events": [{
-                    "Timestamp": datetime.datetime.now().isoformat(),
-                    "Level": logging.getLevelName(record.level),
-                    "MessageTemplate": record.msg,
-                    "Properties": record.log_props
-                }]
-            }
-        elif record.args:
-            # Standard (unnamed) format arguments (use 0-base index as property name).
-            log_props_shim = {}
-            for (arg_index, arg) in enumerate(record.args or []):
-                log_props_shim[str(arg_index)] = arg
+        """
+        Emit a log record.
+        :param record: The LogRecord.
+        """
 
-            request_body = {
-                "Events": [{
-                    "Timestamp": datetime.datetime.now().isoformat(),
-                    "Level": logging.getLevelName(record.level),
-                    "MessageTemplate": record.getMessage(),
-                    "Properties": log_props_shim
-                }]
-            }
-        else:
-            # No format arguments; interpret message as-is.
-            request_body = {
-                "Events": [{
-                    "Timestamp": datetime.datetime.now().isoformat(),
-                    "Level": logging.getLevelName(record.level),
-                    "MessageTemplate": record.getMessage()
-                }]
-            }
-
-        response = self.session.post(self.server_url, json=request_body)
-        response.raise_for_status()
+        self.log_queue.put(record)
 
     def close(self):
+        """
+        Close the log handler.
+        """
+
         try:
+            self.consumer.stop()
             self.session.close()
         finally:
             super().close()
+
+    def publish_log_batch(self, batch):
+        """
+        Publish a batch of log records.
+        :param batch:
+        :return:
+        """
+
+        if len(batch) == 0:
+            return
+
+        request_body = {
+            "Events": [
+                _build_event_data(record) for record in batch
+            ]
+        }
+
+        try:
+            response = self.session.post(self.server_url, json=request_body)
+            response.raise_for_status()
+        except requests.RequestException:
+            # Only notify for the first record in the batch, or we'll be generating too much noise.
+            self.handleError(batch[0])
+
+
+def _build_event_data(record):
+    """
+    Build an event data dictionary from the specified log record for submission to Seq.
+    :param record: The LogRecord.
+    :return: A dictionary containing event data representing the log record.
+    :rtype: dict
+    """
+
+    if isinstance(record, StructuredLogRecord):
+        # Named format arguments (and, therefore, log event properties).
+        event_data = {
+            "Timestamp": datetime.datetime.now().isoformat(),
+            "Level": logging.getLevelName(record.level),
+            "MessageTemplate": record.msg,
+            "Properties": record.log_props
+        }
+    elif record.args:
+        # Standard (unnamed) format arguments (use 0-base index as property name).
+        log_props_shim = {}
+        for (arg_index, arg) in enumerate(record.args or []):
+            log_props_shim[str(arg_index)] = arg
+
+        event_data = {
+            "Timestamp": datetime.datetime.now().isoformat(),
+            "Level": logging.getLevelName(record.level),
+            "MessageTemplate": record.getMessage(),
+            "Properties": log_props_shim
+        }
+    else:
+        # No format arguments; interpret message as-is.
+        event_data = {
+            "Timestamp": datetime.datetime.now().isoformat(),
+            "Level": logging.getLevelName(record.level),
+            "MessageTemplate": record.getMessage()
+        }
+
+    return event_data

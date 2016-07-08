@@ -7,9 +7,6 @@ class QueueConsumer:
     Consumes log records from a queue.
     """
 
-    # Pseudo-record used to abort processing of the record queue.
-    _stop_processing_queue = object()
-
     def __init__(self, name, queue, callback, batch_size, auto_flush_timeout=None):
         """
         Create a new log record consumer.
@@ -105,10 +102,8 @@ class QueueConsumer:
             except Empty:
                 pass
             else:
-                if self._should_stop_processing(record):
-                    self._notify_stop_processing()
-
-                    continue
+                if _should_stop_processing(record):
+                    return
 
                 self._add_to_current_batch(record)
 
@@ -137,19 +132,7 @@ class QueueConsumer:
         self.is_running = False
 
         # If the processor thread is blocked waiting for a new record, this will let it stop gracefully.
-        self.queue.put(
-            QueueConsumer._stop_processing_queue
-        )
-
-    @staticmethod
-    def _should_stop_processing(record):
-        """
-        Determine whether the specified log record indicates that the consumer should stop processing the queue.
-        :param record: The LogRecord (or _stop_processing).
-        :return: True, if record is _stop_processing; otherwise, False.
-        """
-
-        return record is QueueConsumer._stop_processing_queue
+        self.queue.put(_stop_processing_queue)
 
     def _schedule_auto_flush(self):
         """
@@ -184,3 +167,17 @@ class QueueConsumer:
                 self.flush_timer = None
         finally:
             self.state_lock.release()
+
+
+def _should_stop_processing(record):
+    """
+    Determine whether the specified log record indicates that the consumer should stop processing the queue.
+    :param record: The LogRecord (or _stop_processing).
+    :return: True, if record is _stop_processing; otherwise, False.
+    """
+
+    return record is _stop_processing_queue
+
+# Pseudo-record used to abort processing of the record queue.
+# This is necessary because it enables us to unblock a consumer thread waiting for an empty queue.
+_stop_processing_queue = object()
