@@ -18,6 +18,10 @@ Contents:
    authors
    history
 
+.. automodule::
+   seqlog
+
+
 Indices and tables
 ==================
 
