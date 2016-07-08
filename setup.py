@@ -19,7 +19,7 @@ test_requirements = [
 
 setup(
     name='seqlog',
-    version='0.0.3',
+    version='0.0.4',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
     author="Adam Friedman",
