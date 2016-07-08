@@ -14,12 +14,10 @@ Contents:
    readme
    installation
    usage
+   Modules <api/modules>
    contributing
    authors
    history
-
-.. automodule::
-   seqlog
 
 
 Indices and tables
