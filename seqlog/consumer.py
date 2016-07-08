@@ -148,6 +148,7 @@ class QueueConsumer:
                 return
 
             self.flush_timer = Timer(self.auto_flush_timeout, self.flush)
+            self.flush_timer.daemon = True
             self.flush_timer.start()
         finally:
             self.state_lock.release()

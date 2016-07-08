@@ -2,7 +2,8 @@
 
 import logging
 
-from .structured_logging import StructuredLogRecord, StructuredLogger, SeqLogHandler, ConsoleStructuredLogHandler
+from .structured_logging import StructuredLogRecord, StructuredLogger, StructuredRootLogger
+from .structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
@@ -26,6 +27,10 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     """
 
     logging.setLoggerClass(StructuredLogger)
+
+    if override_root_logger:
+        _override_root_logger()
+
     logging.basicConfig(
         style='{',
         handlers=[
@@ -34,8 +39,6 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
         level=level,
         **kwargs
     )
-    if override_root_logger:
-        logging.root = StructuredLogger("root", level)
 
 
 def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
@@ -49,6 +52,10 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
     """
 
     logging.setLoggerClass(StructuredLogger)
+
+    if override_root_logger:
+        _override_root_logger()
+
     logging.basicConfig(
         style='{',
         handlers=[
@@ -57,5 +64,13 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
         level=level,
         **kwargs
     )
-    if override_root_logger:
-        logging.root = StructuredLogger("root", level)
+
+
+def _override_root_logger():
+    """
+    Override the root logger with a `StructuredRootLogger`.
+    """
+
+    logging.root = StructuredRootLogger(logging.WARNING)
+    logging.Logger.root = logging.root
+    logging.Logger.manager = logging.Manager(logging.Logger.root)
