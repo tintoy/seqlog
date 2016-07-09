@@ -47,5 +47,5 @@ If you also want it to publish the current batch of events when not enough of th
 Overriding the root logger
 --------------------------
 
-By default, SeqLog does not modify the root logger (and so calls to ``logging.info()`` and friends do not support named format arguments)."
+By default, SeqLog does not modify the root logger (and so calls to ``logging.info()`` and friends do not support named format arguments).
 To also override the root logger, pass ``True`` for ``override_root_logger``.
