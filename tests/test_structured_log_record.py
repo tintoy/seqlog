@@ -14,6 +14,9 @@ import logging
 from seqlog.structured_logging import StructuredLogRecord
 import tests.assertions as expect
 
+# Turn off thread-related logging, since it would interfere with these tests.
+logging.threading = False
+
 
 class TestStructuredLogRecord(object):
     #
@@ -29,7 +32,7 @@ class TestStructuredLogRecord(object):
             Argument3=7
         )
 
-        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_named_arguments_template(self):
         record = self.create_test_log_record(
@@ -77,7 +80,7 @@ class TestStructuredLogRecord(object):
             7
         )
 
-        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_ordinal_arguments_template(self):
         record = self.create_test_log_record(

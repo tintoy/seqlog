@@ -1,4 +1,4 @@
-from queue import Queue, Empty
+from queue import Empty
 from threading import Thread, RLock, Timer
 
 
@@ -23,7 +23,7 @@ class QueueConsumer:
         :param batch_size: The maximum number of records per batch.
         :type batch_size: int
         :param auto_flush_timeout: An optional timeout (in seconds) before each batch is automatically flushed.
-        :type auto_flush_timeout: int
+        :type auto_flush_timeout: float
         """
 
         # AF: There should really be a second is_stopping flag

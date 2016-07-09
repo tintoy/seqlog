@@ -7,10 +7,8 @@ def log_message(record, expected_message):
 
     actual_message = record.getMessage()
 
-    assert (
-        expected_message == actual_message,
+    assert expected_message == actual_message, \
         "Unexpected log message: '{}' (expected '{}')".format(actual_message, expected_message)
-    )
 
 
 def log_template(record, expected_template):
@@ -22,10 +20,8 @@ def log_template(record, expected_template):
 
     actual_template = record.msg
 
-    assert (
-        expected_template == actual_template,
+    assert expected_template == actual_template, \
         "Unexpected log template: '{}' (expected '{}')".format(actual_template, expected_template)
-    )
 
 
 def log_level(record, expected_level):
@@ -37,10 +33,8 @@ def log_level(record, expected_level):
 
     actual_level = record.levelno
 
-    assert (
-        expected_level == actual_level,
+    assert expected_level == actual_level, \
         "Unexpected log level: '{}' (expected '{}')".format(actual_level, expected_level)
-    )
 
 
 def log_ordinal_args(record, *expected_args):
@@ -51,15 +45,13 @@ def log_ordinal_args(record, *expected_args):
     """
 
     actual_args = record.args
-    assert(actual_args is not None, "Log record does not have ordinal format arguments.")
+    assert actual_args, "Log record does not have ordinal format arguments."
 
-    assert (
-        expected_args == actual_args,
+    assert expected_args == actual_args, \
         "Unexpected ordinal arguments: {}\nExpected ordinal arguments: {}".format(
             repr(actual_args),
             repr(expected_args)
         )
-    )
 
 
 def log_named_args(record, **expected_args):
@@ -70,12 +62,10 @@ def log_named_args(record, **expected_args):
     """
 
     actual_args = record.log_props
-    assert(actual_args is not None, "Log record does not have named format arguments.")
+    assert actual_args, "Log record does not have named format arguments."
 
-    assert (
-        expected_args == actual_args,
-        "Unexpected named arguments: {}\nExpected ordinal arguments: {}".format(
+    assert expected_args == actual_args, \
+        "Unexpected named arguments: {}\nExpected named arguments: {}".format(
             repr(actual_args),
             repr(expected_args)
         )
-    )

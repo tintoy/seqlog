@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import dateutil.tz
 import logging
 
-from seqlog.structured_logging import StructuredLogRecord, StructuredLogger, StructuredRootLogger
+from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
 from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
+from seqlog.structured_logging import clear_global_log_properties as _clear_global_log_properties
+from seqlog.structured_logging import reset_global_log_properties as _reset_global_log_properties
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
@@ -106,6 +107,22 @@ def set_global_log_properties(**properties):
     """
 
     _set_global_log_properties(**properties)
+
+
+def reset_global_log_properties():
+    """
+    Initialize global log properties to their default values.
+    """
+
+    _reset_global_log_properties()
+
+
+def clear_global_log_properties():
+    """
+    Remove all global properties.
+    """
+
+    _clear_global_log_properties()
 
 
 def _override_root_logger():

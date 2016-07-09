@@ -8,14 +8,11 @@ test_seqlog
 Tests for `seqlog.consumer.QueueConsumer` module.
 """
 
-import logging
 from queue import Queue
 from threading import Event
 from time import sleep
 
-from seqlog.structured_logging import StructuredLogRecord
 from seqlog.consumer import QueueConsumer
-import tests.assertions as expect
 
 
 class TestLogRecordConsumer(object):
@@ -30,12 +27,8 @@ class TestLogRecordConsumer(object):
         batch_received = Event()
 
         def handler(record_batch):
-            assert(
-                len(record_batch) == 2,
-                "Incorrect batch size (expected 2, but found {}.".format(
-                    len(record_batch)
-                )
-            )
+            assert len(record_batch) == 2, \
+                "Incorrect batch size (expected 2, but found {}.".format(len(record_batch))
 
             batch_received.set()
 
@@ -52,12 +45,8 @@ class TestLogRecordConsumer(object):
         batch_received = Event()
 
         def handler(record_batch):
-            assert (
-                len(record_batch) == 2,
-                "Incorrect batch size (expected 2, but found {}.".format(
-                    len(record_batch)
-                )
-            )
+            assert len(record_batch) == 2, \
+                "Incorrect batch size (expected 2, but found {}.".format(len(record_batch))
 
             batch_received.set()
 
@@ -80,16 +69,12 @@ class TestLogRecordConsumer(object):
         batch_received = Event()
 
         def handler(record_batch):
-            assert (
-                len(record_batch) == 2,
-                "Incorrect batch size (expected 2, but found {}.".format(
-                    len(record_batch)
-                )
-            )
+            assert len(record_batch) == 2, \
+                "Incorrect batch size (expected 2, but found {}.".format(len(record_batch))
 
             batch_received.set()
 
-        consumer = QueueConsumer("Test Consumer", record_queue, handler, batch_size=3, auto_flush_timeout=200)
+        consumer = QueueConsumer("Test Consumer", record_queue, handler, batch_size=3, auto_flush_timeout=0.2)
         consumer.start()
 
         record_queue.put("Item1")

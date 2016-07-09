@@ -55,7 +55,7 @@ def set_global_log_properties(**properties):
     _global_log_props = {key: value for (key, value) in properties.items()}
 
 
-def initialize_global_log_properties():
+def reset_global_log_properties():
     """
     Initialize global log properties to their default values.
     """
@@ -414,4 +414,3 @@ def _get_local_timestamp(record):
     )
 
     return timestamp.isoformat(sep=' ')
-

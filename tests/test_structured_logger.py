@@ -13,6 +13,7 @@ import pytest
 
 import tests.assertions as expect
 
+from seqlog import clear_global_log_properties
 from seqlog.structured_logging import StructuredLogger
 from tests.stubs import StubStructuredLogHandler
 
@@ -24,7 +25,7 @@ class TestStructuredLogger(object):
         logger.info("Arg1 = '%s', Arg2 = '%s', Arg3 = %d", "Foo", "Bar", 7)
 
         record = handler.pop_record()
-        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_ordinal_arguments_template(self):
         logger, handler = create_logger()
@@ -61,7 +62,7 @@ class TestStructuredLogger(object):
         )
 
         record = handler.pop_record()
-        expect.log_message(record, "'Foo', Arg2 = 'Bar', Arg3 = 7")
+        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = 7")
 
     def test_named_arguments_template(self):
         logger, handler = create_logger()
@@ -93,14 +94,14 @@ class TestStructuredLogger(object):
         logger, handler = create_logger()
 
         logger.info(
-            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}",
+            "Arg1 = 'Arg1 = {Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}",
             Argument1="Foo",
             Argument2="Bar",
             Argument3=7
         )
 
         record = handler.pop_record()
-        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7)
+        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7, LoggerName="test")
 
 
 @pytest.fixture(scope="session")
@@ -111,10 +112,10 @@ def create_logger(level=logging.INFO):
     :return: The logger and handler.
     """
 
+    clear_global_log_properties()
     logger = StructuredLogger("test", level)
 
     stub_handler = StubStructuredLogHandler()
     logger.addHandler(stub_handler)
 
     return logger, stub_handler
-
