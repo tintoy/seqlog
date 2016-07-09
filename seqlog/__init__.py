@@ -10,6 +10,9 @@ __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
 __version__ = '0.0.1'
 
+# TODO: Enable a dictionary of extra properties to be added to each outgoing message.
+# TODO: Need to decide on the right mechanism for this.
+
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                batch_size=10, auto_flush_timeout=None, override_root_logger=False, **kwargs):
@@ -25,6 +28,8 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     the current batch is automatically flushed.
     :param override_root_logger: Override the root logger, too?
     Note - this might cause problems if third-party components try to be clever when using the logging.XXX functions.
+    :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
+    :rtype: SeqLogHandler
     """
 
     logging.setLoggerClass(StructuredLogger)
@@ -32,14 +37,15 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     if override_root_logger:
         _override_root_logger()
 
+    log_handler = SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
     logging.basicConfig(
         style='{',
-        handlers=[
-            SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
-        ],
+        handlers=[log_handler],
         level=level,
         **kwargs
     )
+
+    return log_handler
 
 
 def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import logging
+from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
 
@@ -301,7 +301,7 @@ def _build_event_data(record):
             log_props_shim[str(arg_index)] = arg
 
         event_data = {
-            "Timestamp": _get_local_timestamp(),
+            "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
             "MessageTemplate": record.getMessage(),
             "Properties": log_props_shim
@@ -309,7 +309,7 @@ def _build_event_data(record):
     elif isinstance(record, StructuredLogRecord):
         # Named format arguments (and, therefore, log event properties).
         event_data = {
-            "Timestamp": _get_local_timestamp(),
+            "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
             "MessageTemplate": record.msg,
             "Properties": record.log_props
@@ -317,7 +317,7 @@ def _build_event_data(record):
     else:
         # No format arguments; interpret message as-is.
         event_data = {
-            "Timestamp": _get_local_timestamp(),
+            "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
             "MessageTemplate": record.getMessage()
         }
@@ -325,14 +325,19 @@ def _build_event_data(record):
     return event_data
 
 
-def _get_local_timestamp():
+def _get_local_timestamp(record):
     """
-    Get the current date / time (using the current time zone) as an ISO-formatted date / time string.
+    Get the record's UTC timestamp as an ISO-formatted date / time string.
+    :param record: The LogRecord.
+    :type record: StructuredLogRecord
     :return: The ISO-formatted date / time string.
     :rtype: str
     """
 
-    return datetime.datetime.now(_local_time_zone).isoformat(sep=' ')
+    timestamp = datetime.fromtimestamp(
+        timestamp=record.created,
+        tz=tzlocal()
+    )
 
-# Cached local time zone.
-_local_time_zone = tzlocal()
+    return timestamp.isoformat(sep=' ')
+
