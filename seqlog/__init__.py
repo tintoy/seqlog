@@ -13,30 +13,10 @@ __email__ = 'tintoy@tintoy.io'
 __version__ = '0.1.0'
 
 
-def get_global_log_properties():
-    """
-    Get the properties to be added to all structured log entries.
-
-    :return: A copy of the global log properties.
-    :rtype: dict
-    """
-
-    return _get_global_log_properties()
-
-
-def set_global_log_properties(**properties):
-    """
-    Configure the properties to be added to all structured log entries.
-
-    :param properties: Keyword arguments representing the properties.
-    :type properties: dict
-    """
-
-    _set_global_log_properties(**properties)
-
-
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
-               batch_size=10, auto_flush_timeout=None, override_root_logger=False, **kwargs):
+               batch_size=10, auto_flush_timeout=None,
+               additional_handlers=None, override_root_logger=False,
+               **kwargs):
     """
     Configure the logging system to send log entries to Seq.
 
@@ -48,6 +28,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :param batch_size: The number of log entries to collect before publishing to Seq.
     :param auto_flush_timeout: If specified, the time (in seconds) before
                                the current batch is automatically flushed.
+    :param additional_handlers: Additional `LogHandler`s (if any).
     :param override_root_logger: Override the root logger, too?
                                  Note - this might cause problems if third-party components try to be clever
                                  when using the logging.XXX functions.
@@ -60,15 +41,22 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     if override_root_logger:
         _override_root_logger()
 
-    log_handler = SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
+    log_handlers = [
+        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
+    ]
+
+    if additional_handlers:
+        for additional_handler in additional_handlers:
+            log_handlers.append(additional_handler)
+
     logging.basicConfig(
         style='{',
-        handlers=[log_handler],
+        handlers=log_handlers,
         level=level,
         **kwargs
     )
 
-    return log_handler
+    return log_handlers[0]
 
 
 def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
@@ -96,6 +84,28 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
         level=level,
         **kwargs
     )
+
+
+def get_global_log_properties():
+    """
+    Get the properties to be added to all structured log entries.
+
+    :return: A copy of the global log properties.
+    :rtype: dict
+    """
+
+    return _get_global_log_properties()
+
+
+def set_global_log_properties(**properties):
+    """
+    Configure the properties to be added to all structured log entries.
+
+    :param properties: Keyword arguments representing the properties.
+    :type properties: dict
+    """
+
+    _set_global_log_properties(**properties)
 
 
 def _override_root_logger():

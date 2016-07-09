@@ -21,3 +21,9 @@ History
 ------------------
 
 * Proper versioning starts today :)
+
+0.2.0 (2016-07-09)
+------------------
+
+* Support for configuring additional log handlers when calling log_to_seq.
+* Support for global log properties (statically-configured properties that are added to all outgoing log entries).

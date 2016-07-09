@@ -17,11 +17,8 @@ log_handler = seqlog.log_to_seq(
     api_key,
     level=logging.INFO,
     auto_flush_timeout=0.2,
+    additional_handlers=[logging.StreamHandler()],
     override_root_logger=True
-)
-
-seqlog.set_global_log_properties(
-    MachineName=socket.gethostname()
 )
 
 print("Running...")

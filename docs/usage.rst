@@ -49,3 +49,33 @@ Overriding the root logger
 
 By default, SeqLog does not modify the root logger (and so calls to ``logging.info()`` and friends do not support named format arguments).
 To also override the root logger, pass ``True`` for ``override_root_logger``.
+
+Additional LogHandlers
+----------------------
+
+By default, ``log_to_seq`` only configures a single SeqLogHandler.
+
+To configure additional LogHandlers, pass them via ``additional_handlers``.
+
+Global log properties
+---------------------
+
+SeqLog can also add static properties to each log entry that is sent to Seq.
+By default, the following properties are added:
+
+* ``MachineName`` The local machine's fully-qualified host name.
+* ``ProcessId`` The current process Id.
+
+To configure global log properties, call ``set_global_log_properties``, passing the properties as keyword arguments:
+
+.. code-block:: python
+
+    import seqlog
+
+    seqlog.set_global_log_properties(
+        GlobalProperty1="foo",
+        GlobalProperty2="bar"
+        GlobalProperty3=26
+    )
+
+Note that you can also clear the global log properties (so no properties are added) by calling ``clear_global_log_properties``, and reset the global log properties to their defaults by calling ``reset_global_log_properties``.

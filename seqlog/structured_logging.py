@@ -2,6 +2,7 @@
 
 import logging
 import os
+import socket
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
@@ -13,7 +14,14 @@ from .consumer import QueueConsumer
 # Well-known keyword arguments used by the logging system.
 _well_known_logger_kwargs = {"extra", "exc_info", "func", "sinfo"}
 
-_global_log_props = {}
+# Default global log properties.
+_default_global_log_props = {
+    "MachineName": socket.gethostname(),
+    "ProcessId": os.getpid()
+}
+
+# Global properties attached to all log entries.
+_global_log_props = _default_global_log_props
 
 
 def get_global_log_properties(logger_name=None):
@@ -27,6 +35,7 @@ def get_global_log_properties(logger_name=None):
     """
 
     global_log_properties = {key: value for (key, value) in _global_log_props.items()}
+
     if logger_name:
         global_log_properties["LoggerName"] = logger_name
 
@@ -44,6 +53,26 @@ def set_global_log_properties(**properties):
     global _global_log_props
 
     _global_log_props = {key: value for (key, value) in properties.items()}
+
+
+def initialize_global_log_properties():
+    """
+    Initialize global log properties to their default values.
+    """
+
+    global _global_log_props
+
+    _global_log_props = _default_global_log_props
+
+
+def clear_global_log_properties():
+    """
+    Remove all global properties.
+    """
+
+    global _global_log_props
+
+    _global_log_props = {}
 
 
 class StructuredLogRecord(logging.LogRecord):
@@ -72,6 +101,12 @@ class StructuredLogRecord(logging.LogRecord):
         super().__init__(name, level, pathname, lineno, msg, args, exc_info, func, sinfo, **kwargs)
 
         self.log_props = log_props or {}
+
+        if self.thread and "ThreadId" not in self.log_props:
+            self.log_props["ThreadId"] = self.thread
+
+        if self.threadName and "ThreadName" not in self.log_props:
+            self.log_props["ThreadName"] = self.threadName
 
     def getMessage(self):
         """
@@ -187,7 +222,7 @@ class StructuredRootLogger(logging.RootLogger):
         # We take keyword arguments provided to public logger methods (except
         # well-known ones used by the logging system itself) and move them
         # into the `extra` argument as a sub-dictionary.
-        log_props = {}
+        log_props = get_global_log_properties(self.name)
         for prop in kwargs.keys():
             if prop in _well_known_logger_kwargs:
                 continue
