@@ -105,7 +105,7 @@ class StructuredLogger(logging.Logger):
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         """
         Create a LogRecord.
-        
+
         :param name: The name of the logger that produced the log record.
         :param level: The logging level (severity) associated with the logging record.
         :param fn: The name of the file (if known) where the log entry was created.

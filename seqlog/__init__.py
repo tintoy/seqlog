@@ -25,7 +25,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :param api_key: The Seq API key (optional).
     :param level: The minimum level at which to log.
     :param batch_size: The number of log entries to collect before publishing to Seq.
-    :param auto_flush_timeout: If specified, the time (in milliseconds) before
+    :param auto_flush_timeout: If specified, the time (in seconds) before
                                the current batch is automatically flushed.
     :param override_root_logger: Override the root logger, too?
                                  Note - this might cause problems if third-party components try to be clever
