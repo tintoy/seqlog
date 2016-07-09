@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import socket
 import os
 from time import sleep
 
@@ -15,22 +16,27 @@ log_handler = seqlog.log_to_seq(
     server_url,
     api_key,
     level=logging.INFO,
-    auto_flush_timeout=200,
+    auto_flush_timeout=0.2,
     override_root_logger=True
 )
 
+seqlog.set_global_log_properties(
+    MachineName=socket.gethostname()
+)
+
 print("Running...")
-logging.info("Hello, {name}. {greeting}", name="Root logger", greeting="Nice to meet you,")
+
+logging.info("Hi, {name}. {greeting}", name="Root logger", greeting="Nice to meet you")
 
 logger1 = logging.getLogger("A")
-logger1.info("Hello, {name}! {greeting}", name="world", greeting="Nice to meet you,")
+logger1.info("Hi, {name}! {greeting}", name="world", greeting="Nice to meet you")
 
 logger2 = logging.getLogger("A.B")
-logger2.info("Goodbye, {name}! {greeting}", name="moon", greeting="Nice to meet you,")
+logger2.info("Bye, {name}! {greeting}", name="moon", greeting="Nice to meet you")
 
 logger3 = logging.getLogger("C")
-logger3.info("Goodbye, %s!", "moon")
+logger3.info("By, %s!", "moon")
 
 print("Sleeping...")
-sleep(2)
+sleep(0.5)
 print("Done.")

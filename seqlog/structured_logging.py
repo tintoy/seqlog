@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
@@ -10,12 +11,39 @@ import requests
 from .consumer import QueueConsumer
 
 # Well-known keyword arguments used by the logging system.
-_well_known_logger_kwargs = [
-    "extra",
-    "exc_info",
-    "func",
-    "sinfo"
-]
+_well_known_logger_kwargs = {"extra", "exc_info", "func", "sinfo"}
+
+_global_log_props = {}
+
+
+def get_global_log_properties(logger_name=None):
+    """
+    Get the properties to be added to all structured log entries.
+
+    :param logger_name: An optional logger name to be added to the log entry.
+    :type logger_name: str
+    :return: A copy of the global log properties.
+    :rtype: dict
+    """
+
+    global_log_properties = {key: value for (key, value) in _global_log_props.items()}
+    if logger_name:
+        global_log_properties["LoggerName"] = logger_name
+
+    return global_log_properties
+
+
+def set_global_log_properties(**properties):
+    """
+    Configure the properties to be added to all structured log entries.
+
+    :param properties: Keyword arguments representing the properties.
+    :type properties: dict
+    """
+
+    global _global_log_props
+
+    _global_log_props = {key: value for (key, value) in properties.items()}
 
 
 class StructuredLogRecord(logging.LogRecord):
@@ -90,7 +118,11 @@ class StructuredLogger(logging.Logger):
         # We take keyword arguments provided to public logger methods (except
         # well-known ones used by the logging system itself) and move them
         # into the `extra` argument as a sub-dictionary.
-        log_props = {}
+
+        # Start off with a copy of the global log properties.
+        log_props = get_global_log_properties(self.name)
+
+        # Add supplied keyword arguments.
         for prop in kwargs.keys():
             if prop in _well_known_logger_kwargs:
                 continue
@@ -132,9 +164,7 @@ class StructuredRootLogger(logging.RootLogger):
 
     def __init__(self, level=logging.NOTSET):
         """
-        Create a new StructuredLogger
-        :param name: The logger name.
-        :param level: The logger minimum level (severity).
+        Create a `StructuredRootLogger`.
         """
 
         super().__init__(level)
@@ -142,6 +172,7 @@ class StructuredRootLogger(logging.RootLogger):
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, **kwargs):
         """
         Called by public logger methods to generate a log entry.
+
         :param level: The level (severity) for the log entry.
         :param msg: The log message or message template.
         :param args: Ordinal arguments for the message format template.
@@ -295,13 +326,14 @@ def _build_event_data(record):
     Build an event data dictionary from the specified log record for submission to Seq.
 
     :param record: The LogRecord.
+    :type record: StructuredLogRecord
     :return: A dictionary containing event data representing the log record.
     :rtype: dict
     """
 
     if record.args:
         # Standard (unnamed) format arguments (use 0-base index as property name).
-        log_props_shim = {}
+        log_props_shim = get_global_log_properties(record.name)
         for (arg_index, arg) in enumerate(record.args or []):
             log_props_shim[str(arg_index)] = arg
 
@@ -324,7 +356,8 @@ def _build_event_data(record):
         event_data = {
             "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
-            "MessageTemplate": record.getMessage()
+            "MessageTemplate": record.getMessage(),
+            "Properties": _global_log_props
         }
 
     return event_data

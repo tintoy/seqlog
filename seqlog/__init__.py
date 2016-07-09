@@ -5,13 +5,34 @@ import logging
 
 from seqlog.structured_logging import StructuredLogRecord, StructuredLogger, StructuredRootLogger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
+from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
+from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
 __version__ = '0.1.0'
 
-# TODO: Enable a dictionary of extra properties to be added to each outgoing message.
-# TODO: Need to decide on the right mechanism for this.
+
+def get_global_log_properties():
+    """
+    Get the properties to be added to all structured log entries.
+
+    :return: A copy of the global log properties.
+    :rtype: dict
+    """
+
+    return _get_global_log_properties()
+
+
+def set_global_log_properties(**properties):
+    """
+    Configure the properties to be added to all structured log entries.
+
+    :param properties: Keyword arguments representing the properties.
+    :type properties: dict
+    """
+
+    _set_global_log_properties(**properties)
 
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
