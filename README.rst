@@ -14,7 +14,7 @@ Seq logging adapter for Python.
         :alt: Documentation Status
 
 
-SeqLog enables logging from Python to Seq.
+SeqLog enables logging from Python to `Seq <https://getseq.net/>`_.
 
 It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"".format()`` does.
 
