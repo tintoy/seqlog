@@ -8,7 +8,7 @@ from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.0.8'
+__version__ = '0.1.0'
 
 # TODO: Enable a dictionary of extra properties to be added to each outgoing message.
 # TODO: Need to decide on the right mechanism for this.
