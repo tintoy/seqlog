@@ -10,7 +10,7 @@ from seqlog.structured_logging import set_global_log_properties as _set_global_l
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
