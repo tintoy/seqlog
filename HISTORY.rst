@@ -16,3 +16,8 @@ History
   You can override the server URL and API key using the ``SEQ_SERVER_URL`` and ``SEQ_API_KEY`` environment variables.
 * Update usage information in documentation.
 * Python 3 only for now (sorry, but logging in Python 2 doesn't have all the required extensibility points). If the need to support Python 2 becomes great enough then I'll try to find a way.
+
+0.1.0 (2016-07-09)
+------------------
+
+* Proper versioning starts today :)
