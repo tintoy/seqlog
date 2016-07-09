@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import dateutil.tz
 import logging
 
-from .structured_logging import StructuredLogRecord, StructuredLogger, StructuredRootLogger
-from .structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
+from seqlog.structured_logging import StructuredLogRecord, StructuredLogger, StructuredRootLogger
+from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
