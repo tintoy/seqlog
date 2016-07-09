@@ -94,6 +94,7 @@ class QueueConsumer:
     def _queue_processor(self):
         """
         Process the record queue.
+
         """
 
         while self.is_running:
@@ -110,6 +111,7 @@ class QueueConsumer:
     def _add_to_current_batch(self, record):
         """
         Add a log record to the current batch.
+
         :param record: The LogRecord.
         """
 
@@ -173,6 +175,7 @@ class QueueConsumer:
 def _should_stop_processing(record):
     """
     Determine whether the specified log record indicates that the consumer should stop processing the queue.
+
     :param record: The LogRecord (or _stop_processing).
     :return: True, if record is _stop_processing; otherwise, False.
     """

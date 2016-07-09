@@ -105,6 +105,7 @@ class StructuredLogger(logging.Logger):
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         """
         Create a LogRecord.
+        
         :param name: The name of the logger that produced the log record.
         :param level: The logging level (severity) associated with the logging record.
         :param fn: The name of the file (if known) where the log entry was created.
@@ -169,7 +170,8 @@ class StructuredRootLogger(logging.RootLogger):
 
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         """
-        Create a LogRecord.
+        Create a `LogRecord`.
+
         :param name: The name of the logger that produced the log record.
         :param level: The logging level (severity) associated with the logging record.
         :param fn: The name of the file (if known) where the log entry was created.
@@ -209,16 +211,15 @@ class SeqLogHandler(logging.Handler):
     def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None):
         """
         Create a new `SeqLogHandler`.
+
         :param server_url: The Seq server URL.
         :param api_key: The Seq API key (if any).
         :param batch_size: The number of messages to batch up before posting to Seq.
         :param auto_flush_timeout: If specified, the time (in seconds) before
-        the current batch is automatically flushed.
+                                   the current batch is automatically flushed.
         """
 
         super().__init__()
-
-        # TODO: Use self
 
         self.server_url = server_url
         if not self.server_url.endswith("/"):
@@ -248,6 +249,7 @@ class SeqLogHandler(logging.Handler):
     def emit(self, record):
         """
         Emit a log record.
+
         :param record: The LogRecord.
         """
 
@@ -267,8 +269,8 @@ class SeqLogHandler(logging.Handler):
     def publish_log_batch(self, batch):
         """
         Publish a batch of log records.
-        :param batch:
-        :return:
+
+        :param batch: A list representing the batch.
         """
 
         if len(batch) == 0:
@@ -291,6 +293,7 @@ class SeqLogHandler(logging.Handler):
 def _build_event_data(record):
     """
     Build an event data dictionary from the specified log record for submission to Seq.
+
     :param record: The LogRecord.
     :return: A dictionary containing event data representing the log record.
     :rtype: dict
@@ -330,6 +333,7 @@ def _build_event_data(record):
 def _get_local_timestamp(record):
     """
     Get the record's UTC timestamp as an ISO-formatted date / time string.
+
     :param record: The LogRecord.
     :type record: StructuredLogRecord
     :return: The ISO-formatted date / time string.

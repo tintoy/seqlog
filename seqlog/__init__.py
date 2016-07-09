@@ -19,15 +19,17 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     """
     Configure the logging system to send log entries to Seq.
 
-    Note that the root logger will not log to Seq by default (as this could interfere with the
+    Note that the root logger will not log to Seq by default.
+
     :param server_url: The Seq server URL.
     :param api_key: The Seq API key (optional).
     :param level: The minimum level at which to log.
     :param batch_size: The number of log entries to collect before publishing to Seq.
     :param auto_flush_timeout: If specified, the time (in milliseconds) before
-    the current batch is automatically flushed.
+                               the current batch is automatically flushed.
     :param override_root_logger: Override the root logger, too?
-    Note - this might cause problems if third-party components try to be clever when using the logging.XXX functions.
+                                 Note - this might cause problems if third-party components try to be clever
+                                 when using the logging.XXX functions.
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
@@ -52,10 +54,12 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, **kwargs):
     """
     Configure the logging system to send log entries to the console.
 
-    Note that the root logger will not log to Seq by default (as this could interfere with the
+    Note that the root logger will not log to Seq by default.
+
     :param level: The minimum level at which to log.
     :param override_root_logger: Override the root logger, too?
-    Note - this might cause problems if third-party components try to be clever when using the logging.XXX functions.
+                                 Note - this might cause problems if third-party components try to be clever
+                                 when using the logging.XXX functions.
     """
 
     logging.setLoggerClass(StructuredLogger)
