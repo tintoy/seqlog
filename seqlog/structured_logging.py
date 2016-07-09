@@ -212,11 +212,13 @@ class SeqLogHandler(logging.Handler):
         :param server_url: The Seq server URL.
         :param api_key: The Seq API key (if any).
         :param batch_size: The number of messages to batch up before posting to Seq.
-        :param auto_flush_timeout: If specified, the time (in milliseconds) before
+        :param auto_flush_timeout: If specified, the time (in seconds) before
         the current batch is automatically flushed.
         """
 
         super().__init__()
+
+        # TODO: Use self
 
         self.server_url = server_url
         if not self.server_url.endswith("/"):

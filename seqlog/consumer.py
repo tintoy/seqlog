@@ -22,7 +22,7 @@ class QueueConsumer:
         :type callback: callable
         :param batch_size: The maximum number of records per batch.
         :type batch_size: int
-        :param auto_flush_timeout: An optional timeout (in milliseconds) before each batch is automatically flushed.
+        :param auto_flush_timeout: An optional timeout (in seconds) before each batch is automatically flushed.
         :type auto_flush_timeout: int
         """
 

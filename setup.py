@@ -10,8 +10,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'python_dateutil',
-    'requests'
+    'python_dateutil>=2.5.3',
+    'requests>=2.10.0'
 ]
 
 test_requirements = [
@@ -20,7 +20,7 @@ test_requirements = [
 
 setup(
     name='seqlog',
-    version='0.0.6',
+    version='0.0.7',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
     author="Adam Friedman",

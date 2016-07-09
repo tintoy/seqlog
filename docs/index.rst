@@ -8,28 +8,7 @@ Seq logging adapter for Python
 
 ``seqlog`` is a plugin for Python logging that sends log messages to Seq.
 
-To configure logging to Seq:
-
-.. code-block:: python
-
-   import seqlog
-
-   seqlog.log_to_seq(
-      server_url="http://my-seq-server:5431/",
-      api_key="My API Key"
-      level=logging.INFO,
-      batch_size=10,
-      auto_flush_timeout=10000  # milliseconds
-      override_root_logger=True
-   )
-
-For the best experience, use named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
-
-For example:
-
-.. code-block:: python
-
-   logging.info("Hello, {name}!", name="World")
+It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"".format()`` does.
 
 Contents:
 
