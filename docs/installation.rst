@@ -8,13 +8,13 @@ Installation
 Stable release
 --------------
 
-To install Seq logging adapter for Python., run this command in your terminal:
+To install SeqLog, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install seqlog
 
-This is the preferred method to install Seq logging adapter for Python., as it will always install the most recent stable release. 
+This is the preferred method to install SeqLog, as it will always install the most recent stable release.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -26,7 +26,7 @@ you through the process.
 From sources
 ------------
 
-The sources for Seq logging adapter for Python. can be downloaded from the `Github repo`_.
+The sources for SeqLog can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 

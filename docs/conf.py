@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Seq logging adapter for Python.'
+project = u'SeqLog'
 copyright = u"2016, Adam Friedman"
 
 # The version info for the project you're documenting, acts as replacement
@@ -209,7 +209,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'seqlog.tex',
-     u'Seq logging adapter for Python. Documentation',
+     u'SeqLog Documentation',
      u'Adam Friedman', 'manual'),
 ]
 
@@ -240,7 +240,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'seqlog',
-     u'Seq logging adapter for Python. Documentation',
+     u'SeqLog Documentation',
      [u'Adam Friedman'], 1)
 ]
 
@@ -255,7 +255,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'seqlog',
-     u'Seq logging adapter for Python. Documentation',
+     u'SeqLog Documentation',
      u'Adam Friedman',
      'seqlog',
      'One line description of project.',
