@@ -6,9 +6,9 @@
 Seq logging adapter for Python
 ==============================
 
-``seqlog`` is a plugin for Python logging that sends log messages to Seq.
+SeqLog is a plugin for Python logging that sends log messages to Seq.
 
-It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"".format()`` does.
+It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"{arg1}".format(arg1="foo")`` does.
 
 Contents:
 

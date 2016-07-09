@@ -39,7 +39,7 @@ Note that mixing named and ordinal arguments is not currently supported.
 Batching and auto-flush
 -----------------------
 
-By default seqlog will wait until it has a batch of 10 messages before sending them to Seq.
+By default SeqLog will wait until it has a batch of 10 messages before sending them to Seq.
 You can control the batch size by passing a value for ``batch_size``.
 
 If you also want it to publish the current batch of events when not enough of them have arrived within a certain period, you can pass ``auto_flush_timeout`` (a ``float`` representing the number of seconds before an incomplete batch is published).
@@ -47,5 +47,5 @@ If you also want it to publish the current batch of events when not enough of th
 Overriding the root logger
 --------------------------
 
-By default, seqlog does not modify the root logger (and so calls to ``logging.info()`` and friends do not support named format arguments)."
+By default, SeqLog does not modify the root logger (and so calls to ``logging.info()`` and friends do not support named format arguments)."
 To also override the root logger, pass ``True`` for ``override_root_logger``.

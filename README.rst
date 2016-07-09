@@ -16,7 +16,7 @@ Seq logging adapter for Python.
 
 SeqLog enables logging from Python to `Seq <https://getseq.net/>`_.
 
-It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"".format()`` does.
+It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"{arg1}".format(arg1="foo")`` does.
 
 * Free software: MIT license
 * Documentation: https://seqlog.readthedocs.io.
