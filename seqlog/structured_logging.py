@@ -6,7 +6,7 @@ import socket
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
-
+from threading import RLock
 import requests
 
 from .consumer import QueueConsumer
@@ -287,6 +287,8 @@ class SeqLogHandler(logging.Handler):
 
         super().__init__()
 
+        self.publish_lock = RLock()
+
         self.server_url = server_url
         if not self.server_url.endswith("/"):
             self.server_url += "/"
@@ -348,12 +350,15 @@ class SeqLogHandler(logging.Handler):
             ]
         }
 
+        self.publish_lock.acquire()
         try:
             response = self.session.post(self.server_url, json=request_body)
             response.raise_for_status()
         except requests.RequestException:
             # Only notify for the first record in the batch, or we'll be generating too much noise.
             self.handleError(batch[0])
+        finally:
+            self.publish_lock.release()
 
 
 def _build_event_data(record):

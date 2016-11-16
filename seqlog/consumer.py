@@ -182,6 +182,7 @@ def _should_stop_processing(record):
 
     return record is _stop_processing_queue
 
+
 # Pseudo-record used to abort processing of the record queue.
 # This is necessary because it enables us to unblock a consumer thread waiting for an empty queue.
 _stop_processing_queue = object()
