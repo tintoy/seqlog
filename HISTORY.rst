@@ -27,3 +27,8 @@ History
 
 * Support for configuring additional log handlers when calling log_to_seq.
 * Support for global log properties (statically-configured properties that are added to all outgoing log entries).
+
+0.3.0 (2016-11-16)
+------------------
+
+* Fix for intermittent "RuntimeError: The content for this response was already consumed" when publishing log entries (#1)
