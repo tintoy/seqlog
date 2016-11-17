@@ -6,7 +6,6 @@ import socket
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
-from threading import RLock
 import requests
 
 from .consumer import QueueConsumer
