@@ -61,6 +61,9 @@ class QueueConsumer:
             current_batch = self.current_batch[:]
             self.current_batch.clear()
 
+            if len(current_batch) == 0:
+                return
+
             self.callback(current_batch)
         finally:
             self.state_lock.release()
@@ -99,14 +102,17 @@ class QueueConsumer:
 
         while self.is_running:
             try:
-                record = self.queue.get(block=True)
+                record = self.queue.get(block=True, timeout=0.25)
             except Empty:
                 pass
             else:
-                if _should_stop_processing(record):
-                    return
-
-                self._add_to_current_batch(record)
+                try:
+                    if not _should_stop_processing(record):
+                        self._add_to_current_batch(record)
+                    else:
+                        self.is_running = False
+                finally:
+                    self.queue.task_done()
 
     def _add_to_current_batch(self, record):
         """
@@ -130,8 +136,6 @@ class QueueConsumer:
         """
         Enqueue the _stop_processing dummy log record to indicate that the consumer should stop processing the queue.
         """
-
-        self.is_running = False
 
         # If the processor thread is blocked waiting for a new record, this will let it stop gracefully.
         self.queue.put(_stop_processing_queue)

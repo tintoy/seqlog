@@ -287,8 +287,6 @@ class SeqLogHandler(logging.Handler):
 
         super().__init__()
 
-        self.publish_lock = RLock()
-
         self.server_url = server_url
         if not self.server_url.endswith("/"):
             self.server_url += "/"
@@ -329,7 +327,14 @@ class SeqLogHandler(logging.Handler):
         """
 
         try:
-            self.consumer.stop()
+            if self.consumer.is_running:
+                self.consumer.stop()
+
+            # TODO: Implement QueueConsumer.join() so we can wait
+            # for processing to complete before closing the HTTP session
+
+            # self.consumer.join()
+
             self.session.close()
         finally:
             super().close()
@@ -350,7 +355,7 @@ class SeqLogHandler(logging.Handler):
             ]
         }
 
-        self.publish_lock.acquire()
+        self.acquire()
         try:
             response = self.session.post(self.server_url, json=request_body)
             response.raise_for_status()
@@ -358,7 +363,7 @@ class SeqLogHandler(logging.Handler):
             # Only notify for the first record in the batch, or we'll be generating too much noise.
             self.handleError(batch[0])
         finally:
-            self.publish_lock.release()
+            self.release()
 
 
 def _build_event_data(record):
