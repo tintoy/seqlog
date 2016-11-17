@@ -329,7 +329,9 @@ class SeqLogHandler(logging.Handler):
         """
 
         try:
-            self.consumer.stop()
+            if self.consumer.is_running:
+                self.consumer.stop()
+
             self.session.close()
         finally:
             super().close()
