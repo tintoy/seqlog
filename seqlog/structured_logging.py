@@ -359,7 +359,7 @@ class SeqLogHandler(logging.Handler):
             response = self.session.post(
                 self.server_url,
                 json=request_body,
-                stream=True # prevent 'the content for this response was already consumed'
+                stream=True  # prevent '362'
             )
             response.raise_for_status()
         except requests.RequestException:

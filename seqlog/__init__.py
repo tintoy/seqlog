@@ -11,7 +11,7 @@ from seqlog.structured_logging import reset_global_log_properties as _reset_glob
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
