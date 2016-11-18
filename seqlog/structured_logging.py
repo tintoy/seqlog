@@ -318,7 +318,7 @@ class SeqLogHandler(logging.Handler):
         :param record: The LogRecord.
         """
 
-        self.log_queue.put(record)
+        self.log_queue.put(record, block=False)
 
     def close(self):
         """
@@ -356,7 +356,11 @@ class SeqLogHandler(logging.Handler):
 
         self.acquire()
         try:
-            response = self.session.post(self.server_url, json=request_body)
+            response = self.session.post(
+                self.server_url,
+                json=request_body,
+                stream=True # prevent 'the content for this response was already consumed'
+            )
             response.raise_for_status()
         except requests.RequestException:
             # Only notify for the first record in the batch, or we'll be generating too much noise.
