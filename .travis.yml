@@ -1,7 +1,12 @@
 language: python
-python: 3.5
+python:
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
 
 env:
+  - TOXENV=py36
   - TOXENV=py35
   - TOXENV=py34
   - TOXENV=py33
@@ -13,7 +18,7 @@ script: tox -e ${TOXENV}
 
 deploy:
   on:
-    condition: $TOXENV == py33
+    condition: $TOXENV == py35
     repo: tintoy/seqlog
     tags: true
 
@@ -35,4 +40,3 @@ deploy:
       ZWp5MU5DWVZVRU1jV3NWaDlJaCs2aVRKNjgvWU9HVDczSnF3MWpPa3lWbkthZHVoOHNhemVhdDA9
 
   distributions: sdist bdist_wheel
-
