@@ -11,7 +11,7 @@ script: tox -e ${TOXENV}
 
 deploy:
   on:
-    condition: $TOXENV == py35
+    condition: $TOXENV == py36
     repo: tintoy/seqlog
     tags: true
 
