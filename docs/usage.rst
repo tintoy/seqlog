@@ -11,10 +11,10 @@ Configure logging to Seq
 
    seqlog.log_to_seq(
       server_url="http://my-seq-server:5431/",
-      api_key="My API Key"
+      api_key="My API Key",
       level=logging.INFO,
       batch_size=10,
-      auto_flush_timeout=10000  # milliseconds
+      auto_flush_timeout=10000,  # milliseconds
       override_root_logger=True
    )
 
