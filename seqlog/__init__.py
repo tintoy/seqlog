@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import yaml
 
 from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
@@ -12,6 +13,42 @@ from seqlog.structured_logging import reset_global_log_properties as _reset_glob
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
 __version__ = "0.3.4"
+
+
+def configure_from_file(file_name, override_root_logger=True):
+    """
+    Configure Seq logging using YAML-format configuration file.
+
+    Uses `logging.config.dictConfig()`.
+
+    :param file_name: The name of the configuration file to use.
+    :type file_name: str
+    :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
+    :type override_root_logger: bool
+    """
+
+    with open(file_name) as config_file:
+        config = yaml.load(config_file)
+
+    configure_from_dict(config, override_root_logger)
+
+
+def configure_from_dict(config, override_root_logger=True):
+    """
+    Configure Seq logging using a dictionary.
+
+    Uses `logging.config.dictConfig()`.
+
+    :param config: A dict containing the configuration.
+    :type config: dict
+    :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
+    :type override_root_logger: bool
+    """
+
+    if override_root_logger:
+        _override_root_logger()
+
+    logging.config.dictConfig(config)
 
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
