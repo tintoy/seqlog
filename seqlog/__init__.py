@@ -12,7 +12,7 @@ from seqlog.structured_logging import reset_global_log_properties as _reset_glob
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = "0.3.4"
+__version__ = '0.3.5'
 
 
 def configure_from_file(file_name, override_root_logger=True):
