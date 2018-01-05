@@ -2,8 +2,8 @@
 Usage
 =====
 
-Configure logging to Seq
-------------------------
+Configure logging programmatically
+----------------------------------
 
 .. code-block:: python
 
@@ -18,8 +18,8 @@ Configure logging to Seq
       override_root_logger=True
    )
 
-For the best experience, use "{x}"-style named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
-Using unnamed "holes" (i.e. "{}") is not currently supported.
+For the best experience, use ``{x}``-style named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
+Using unnamed "holes" (i.e. ``{}``) is not currently supported.
 
 For example:
 
@@ -35,6 +35,73 @@ The ordinal format arguments are stored in the log entry properties using the 0-
    logging.info("Hello, %s!", "World")
 
 Note that mixing named and ordinal arguments is not currently supported.
+
+Configure logging from a file
+-----------------------------
+
+Seqlog can also use a YAML-format file to describe the desired logging configuration.
+
+First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
+
+.. code-block:: yaml
+
+    # This is the Python logging schema version (currently, only the value 1 is supported here).
+    version: 1
+
+    # Configure logging from scratch.
+    disable_existing_loggers: True
+
+    # Configure the root logger to use Seq
+    root:
+      class: seqlog.structured_logging.StructuredRootLogger
+      level: INFO
+      handlers:
+      - seq
+      - console
+
+    # You can also configure non-root loggers.
+    loggers:
+      another_logger:
+          class: seqlog.structured_logging.StructuredLogger
+          propagate: False
+          level: INFO
+          handlers:
+          - seq
+          - console
+
+    handlers:
+    # Log to STDOUT
+      console:
+        class: seqlog.structured_logging.ConsoleStructuredLogHandler
+        formatter: seq
+
+    # Log to Seq
+      seq:
+        class: seqlog.structured_logging.SeqLogHandler
+        formatter: seq
+
+        # Seq-specific settings (add any others you need, they're just kwargs for SeqLogHandler's constructor).
+        server_url: 'http://localhost:5341'
+        api_key: 'your_api_key_if_you_have_one'
+
+    formatters:
+      seq:
+        style: '{'
+
+Then, call ``seqlog.configure_from_file()``:
+
+.. code-block:: python
+
+    seqlog.configure_from_file('/foo/bar/my_config.yml')
+
+    # Use the root logger.
+    root_logger = logging.getLogger()
+    root_logger.info('This is the root logger.')
+
+    # Use another logger
+    another_logger = logging.getLogger('another_logger')
+    another_logger.info('This is another logger.')
+
 
 Batching and auto-flush
 -----------------------
