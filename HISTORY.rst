@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.7 (2018-01-05)
+------------------
+
+* Implement and document logging configuration from file (#3)
+
 0.3.4 (2017-11-27)
 ------------------
 
