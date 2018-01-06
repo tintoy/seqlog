@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.8 (2018-01-05)
+------------------
+
+* Improve documentation for logging configuration from file (#3)
+
 0.3.7 (2018-01-05)
 ------------------
 
