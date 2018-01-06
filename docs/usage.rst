@@ -39,7 +39,7 @@ Note that mixing named and ordinal arguments is not currently supported.
 Configure logging from a file
 -----------------------------
 
-Seqlog can also use a YAML-format file to describe the desired logging configuration.
+Seqlog can also use a YAML-format file to describe the desired logging configuration. This file has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
 
 First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
 
@@ -102,6 +102,27 @@ Then, call ``seqlog.configure_from_file()``:
     another_logger = logging.getLogger('another_logger')
     another_logger.info('This is another logger.')
 
+Configuring logging from a dictionary
+-------------------------------------
+
+Seqlog can also use a dictionary to describe the desired logging configuration.
+This dictionary has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
+
+.. code-block:: python
+
+    config = {
+      # configuration goes here
+    }
+
+    seqlog.configure_from_dict(config)
+
+    # Use the root logger.
+    root_logger = logging.getLogger()
+    root_logger.info('This is the root logger.')
+
+    # Use another logger
+    another_logger = logging.getLogger('another_logger')
+    another_logger.info('This is another logger.')
 
 Batching and auto-flush
 -----------------------
