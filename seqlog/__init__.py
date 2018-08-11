@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import logging.config
 import yaml
 
 from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
@@ -12,10 +13,10 @@ from seqlog.structured_logging import reset_global_log_properties as _reset_glob
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.3.9'
+__version__ = '0.3.10'
 
 
-def configure_from_file(file_name, override_root_logger=True):
+def configure_from_file(file_name, override_root_logger=True, use_structured_logger=True):
     """
     Configure Seq logging using YAML-format configuration file.
 
@@ -24,6 +25,7 @@ def configure_from_file(file_name, override_root_logger=True):
     :param file_name: The name of the configuration file to use.
     :type file_name: str
     :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
+    :param use_structured_logger: Configure the default logger class to be StructuredLogger, which support named format arguments? (default: True)
     :type override_root_logger: bool
     """
 
@@ -33,7 +35,7 @@ def configure_from_file(file_name, override_root_logger=True):
     configure_from_dict(config, override_root_logger)
 
 
-def configure_from_dict(config, override_root_logger=True):
+def configure_from_dict(config, override_root_logger=True, use_structured_logger=True):
     """
     Configure Seq logging using a dictionary.
 
@@ -42,11 +44,16 @@ def configure_from_dict(config, override_root_logger=True):
     :param config: A dict containing the configuration.
     :type config: dict
     :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
+    :param use_structured_logger: Configure the default logger class to be StructuredLogger, which support named format arguments? (default: True)
     :type override_root_logger: bool
     """
 
     if override_root_logger:
         _override_root_logger()
+
+    # Must use StructuredLogger to support named format argments.
+    if (use_structured_logger):
+        logging.setLoggerClass(StructuredLogger)
 
     logging.config.dictConfig(config)
 
