@@ -52,7 +52,7 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
         _override_root_logger()
 
     # Must use StructuredLogger to support named format argments.
-    if (use_structured_logger):
+    if use_structured_logger:
         logging.setLoggerClass(StructuredLogger)
 
     logging.config.dictConfig(config)

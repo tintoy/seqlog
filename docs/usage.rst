@@ -53,7 +53,6 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
 
     # Configure the root logger to use Seq
     root:
-      class: seqlog.structured_logging.StructuredRootLogger
       level: INFO
       handlers:
       - seq
@@ -62,7 +61,6 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
     # You can also configure non-root loggers.
     loggers:
       another_logger:
-          class: seqlog.structured_logging.StructuredLogger
           propagate: False
           level: INFO
           handlers:
