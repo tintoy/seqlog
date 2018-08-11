@@ -10,7 +10,7 @@ Configure logging programmatically
    import seqlog
 
    seqlog.log_to_seq(
-      server_url="http://my-seq-server:5431/",
+      server_url="http://my-seq-server:5341/",
       api_key="My API Key",
       level=logging.INFO,
       batch_size=10,
