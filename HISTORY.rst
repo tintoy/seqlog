@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.10 (2018-08-11)
+-------------------
+
+* Fix incorrect behaviour when configuring logging from a file (tintoy/seqlog#10).  
+  **Breaking change**: Configuring logging from file or dict will now by default override the default logger class to be ``StructuredLogger`` (this can be reverted to previous behaviour by passing ``use_structured_logger=False``).
+
 0.3.9 (2018-01-09)
 ------------------
 
