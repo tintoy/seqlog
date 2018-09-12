@@ -15,7 +15,8 @@ Configure logging programmatically
       level=logging.INFO,
       batch_size=10,
       auto_flush_timeout=10000,  # milliseconds
-      override_root_logger=True
+      override_root_logger=True,
+      json_encoder_class=json.encoder.JSONEncoder  # Optional; only specify this if you want to use a custom JSON encoder
    )
 
 For the best experience, use ``{x}``-style named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
@@ -81,6 +82,9 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
         # Seq-specific settings (add any others you need, they're just kwargs for SeqLogHandler's constructor).
         server_url: 'http://localhost:5341'
         api_key: 'your_api_key_if_you_have_one'
+
+        # Use a custom JSON encoder, if you need to.
+        json_encoder_class: json.encoder.JSONEncoder
 
     formatters:
       seq:

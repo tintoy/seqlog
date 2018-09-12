@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 import os
 import socket
@@ -273,7 +274,7 @@ class SeqLogHandler(logging.Handler):
     Log handler that posts to Seq.
     """
 
-    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None):
+    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None, json_encoder_class=None):
         """
         Create a new `SeqLogHandler`.
 
@@ -282,6 +283,7 @@ class SeqLogHandler(logging.Handler):
         :param batch_size: The number of messages to batch up before posting to Seq.
         :param auto_flush_timeout: If specified, the time (in seconds) before
                                    the current batch is automatically flushed.
+        :param json_encoder_class: The custom JSON encoder class (if any) to use.
         """
 
         super().__init__()
@@ -294,6 +296,8 @@ class SeqLogHandler(logging.Handler):
         self.session = requests.Session()
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
+
+        self.json_encoder_class = json_encoder_class or json.encoder.JSONEncoder
 
         self.log_queue = Queue()
         self.consumer = QueueConsumer(
@@ -353,12 +357,13 @@ class SeqLogHandler(logging.Handler):
                 _build_event_data(record) for record in batch
             ]
         }
+        request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
 
         self.acquire()
         try:
             response = self.session.post(
                 self.server_url,
-                json=request_body,
+                data=request_body_json,
                 stream=True  # prevent '362'
             )
             response.raise_for_status()
