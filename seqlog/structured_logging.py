@@ -298,9 +298,8 @@ class SeqLogHandler(logging.Handler):
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
 
-        self.json_encoder_class = _ensure_class(json_encoder_class or json.encoder.JSONEncoder,
-            compatible_class=json.encoder.JSONEncoder
-        )
+        json_encoder_class = json_encoder_class or json.encoder.JSONEncoder
+        self.json_encoder_class = _ensure_class(json_encoder_class, compatible_class=json.encoder.JSONEncoder)
 
         self.log_queue = Queue()
         self.consumer = QueueConsumer(
