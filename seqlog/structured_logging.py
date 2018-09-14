@@ -2,6 +2,7 @@
 
 import json
 import importlib
+import inspect
 import logging
 import os
 import socket
@@ -459,6 +460,11 @@ def _ensure_class(class_or_class_name, compatible_class=None):
         target_class = getattr(target_module, target_class_name, default=None)
         if not target_class:
             raise ImportError("Class not found: '{}'.".format(class_or_class_name))
+
+    if not inspect.isclass(target_class):
+        raise TypeError(
+            "'{}' is not a class.".format(class_or_class_name)
+        )
 
     if compatible_class and not issubclass(target_class, compatible_class):
         raise ValueError(
