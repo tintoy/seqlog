@@ -447,7 +447,7 @@ def _ensure_class(class_or_class_name, compatible_class=None):
     """
 
     target_class = class_or_class_name
-    if isinstance(str, class_or_class_name):
+    if isinstance(class_or_class_name, str):
         name_parts = class_or_class_name.split('.')
         module_name = '.'.join(
             name_parts[:-1]
