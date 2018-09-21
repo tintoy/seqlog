@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
+import importlib
+import inspect
 import logging
 import os
 import socket
@@ -273,7 +276,7 @@ class SeqLogHandler(logging.Handler):
     Log handler that posts to Seq.
     """
 
-    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None):
+    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None, json_encoder_class=None):
         """
         Create a new `SeqLogHandler`.
 
@@ -282,6 +285,7 @@ class SeqLogHandler(logging.Handler):
         :param batch_size: The number of messages to batch up before posting to Seq.
         :param auto_flush_timeout: If specified, the time (in seconds) before
                                    the current batch is automatically flushed.
+        :param json_encoder_class: The custom JSON encoder class (or fully-qualified class name), if any, to use.
         """
 
         super().__init__()
@@ -294,6 +298,9 @@ class SeqLogHandler(logging.Handler):
         self.session = requests.Session()
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
+
+        json_encoder_class = json_encoder_class or json.encoder.JSONEncoder
+        self.json_encoder_class = _ensure_class(json_encoder_class, compatible_class=json.encoder.JSONEncoder)
 
         self.log_queue = Queue()
         self.consumer = QueueConsumer(
@@ -353,12 +360,13 @@ class SeqLogHandler(logging.Handler):
                 _build_event_data(record) for record in batch
             ]
         }
+        request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
 
         self.acquire()
         try:
             response = self.session.post(
                 self.server_url,
-                json=request_body,
+                data=request_body_json,
                 stream=True  # prevent '362'
             )
             response.raise_for_status()
@@ -427,3 +435,44 @@ def _get_local_timestamp(record):
     )
 
     return timestamp.isoformat(sep=' ')
+
+
+def _ensure_class(class_or_class_name, compatible_class=None):
+    """
+    Ensure that the supplied value is either a class or a fully-qualified class name.
+
+    :param name: A class or a fully-qualified class name.
+    :param expected_base_class: If specified then the class must be, or (eventually) derive from, this class.
+    :return: The class represented by class_or_class_name.
+    """
+
+    target_class = class_or_class_name
+    if isinstance(class_or_class_name, str):
+        name_parts = class_or_class_name.split('.')
+        module_name = '.'.join(
+            name_parts[:-1]
+        )
+        target_class_name = name_parts[-1]
+
+        # Raises ModuleNotFoundError if we can't resolve part of the module path
+        target_module = importlib.import_module(module_name)
+
+        target_class = getattr(target_module, target_class_name, None)
+        if not target_class:
+            raise ImportError("Class not found: '{}'.".format(class_or_class_name))
+
+    if not inspect.isclass(target_class):
+        raise TypeError(
+            "'{}' is not a class.".format(class_or_class_name)
+        )
+
+    if compatible_class and not issubclass(target_class, compatible_class):
+        raise ValueError(
+            "Class '{}' does not derive from '{}.{}'.".format(
+                class_or_class_name,
+                compatible_class.__module__,
+                compatible_class.__name__
+            )
+        )
+
+    return target_class

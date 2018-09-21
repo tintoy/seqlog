@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.11 (2018-92-22)
+-------------------
+
+* Support custom ``JSONEncoder`` implementations (tintoy/seqlog#7 and tintoy/seqlog#13).
+
 0.3.10 (2018-08-11)
 -------------------
 

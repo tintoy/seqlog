@@ -13,7 +13,7 @@ from seqlog.structured_logging import reset_global_log_properties as _reset_glob
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.3.10'
+__version__ = '0.3.11'
 
 
 def configure_from_file(file_name, override_root_logger=True, use_structured_logger=True):
@@ -61,6 +61,7 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                batch_size=10, auto_flush_timeout=None,
                additional_handlers=None, override_root_logger=False,
+               json_encoder_class=None,
                **kwargs):
     """
     Configure the logging system to send log entries to Seq.
@@ -76,6 +77,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :param override_root_logger: Override the root logger, too?
                                  Note - this might cause problems if third-party components try to be clever
                                  when using the logging.XXX functions.
+    :json_encoder_class: The custom JSONEncoder class (if any) to use. It not specified, the default JSONEncoder will be used.
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
@@ -86,7 +88,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
         _override_root_logger()
 
     log_handlers = [
-        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout)
+        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
     ]
 
     if additional_handlers:
