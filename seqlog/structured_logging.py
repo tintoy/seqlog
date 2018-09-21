@@ -452,12 +452,12 @@ def _ensure_class(class_or_class_name, compatible_class=None):
         module_name = '.'.join(
             name_parts[:-1]
         )
-        target_class_name = name_parts[-1:]
+        target_class_name = name_parts[-1]
 
         # Raises ModuleNotFoundError if we can't resolve part of the module path
         target_module = importlib.import_module(module_name)
 
-        target_class = getattr(target_module, target_class_name, default=None)
+        target_class = getattr(target_module, target_class_name, None)
         if not target_class:
             raise ImportError("Class not found: '{}'.".format(class_or_class_name))
 
