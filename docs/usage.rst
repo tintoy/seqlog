@@ -14,7 +14,7 @@ Configure logging programmatically
       api_key="My API Key",
       level=logging.INFO,
       batch_size=10,
-      auto_flush_timeout=10000,  # milliseconds
+      auto_flush_timeout=10,  # seconds
       override_root_logger=True,
       json_encoder_class=json.encoder.JSONEncoder  # Optional; only specify this if you want to use a custom JSON encoder
    )
