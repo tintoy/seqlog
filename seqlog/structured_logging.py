@@ -6,6 +6,7 @@ import inspect
 import logging
 import os
 import socket
+import sys
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
@@ -363,6 +364,7 @@ class SeqLogHandler(logging.Handler):
         request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
 
         self.acquire()
+        response = None
         try:
             response = self.session.post(
                 self.server_url,
@@ -370,9 +372,19 @@ class SeqLogHandler(logging.Handler):
                 stream=True  # prevent '362'
             )
             response.raise_for_status()
-        except requests.RequestException:
+        except requests.RequestException as requestFailed:
             # Only notify for the first record in the batch, or we'll be generating too much noise.
             self.handleError(batch[0])
+
+            # Attempt to log error response
+            if not requestFailed.response:
+                sys.stderr.write('Response from Seq was unavailable.\n')
+            elif not requestFailed.response.text:
+                sys.stderr.write('Response body from Seq was empty.\n')
+            else:
+                sys.stderr.write('Response body from Seq:\n{0}\n'.format(
+                    requestFailed.response.text
+                ))
         finally:
             self.release()
 
