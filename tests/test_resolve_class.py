@@ -31,27 +31,27 @@ class TestResolveClass(object):
 
     def test_ensure_class_test_json_encoder_str(self):
         """
-        Verify that the default tests.test_resolve_class.TestJSONEncoder class can be resolved from a string.
+        Verify that the default tests.test_resolve_class.JSONEncoderTest class can be resolved from a string.
         """
 
-        resolved_class = _ensure_class('tests.test_resolve_class.TestJSONEncoder', compatible_class=json.encoder.JSONEncoder)
-        assert resolved_class == TestJSONEncoder
+        resolved_class = _ensure_class('tests.test_resolve_class.JSONEncoderTest', compatible_class=json.encoder.JSONEncoder)
+        assert resolved_class == JSONEncoderTest
 
     def test_ensure_class_test_json_encoder_class(self):
         """
-        Verify that the default tests.test_resolve_class.TestJSONEncoder class can be resolved from itself.
+        Verify that the default tests.test_resolve_class.JSONEncoderTest class can be resolved from itself.
         """
 
-        resolved_class = _ensure_class(TestJSONEncoder, compatible_class=json.encoder.JSONEncoder)
-        assert resolved_class == TestJSONEncoder
+        resolved_class = _ensure_class(JSONEncoderTest, compatible_class=json.encoder.JSONEncoder)
+        assert resolved_class == JSONEncoderTest
 
     def test_ensure_class_not_an_encoder_str(self):
         """
-        Verify that the default tests.test_resolve_class.TestNotAnEncoder class cannot be resolved from a string.
+        Verify that the default tests.test_resolve_class.NotAnEncoderTest class cannot be resolved from a string.
         """
 
         try:
-            _ensure_class('tests.test_resolve_class.TestNotAnEncoder', compatible_class=json.encoder.JSONEncoder)
+            _ensure_class('tests.test_resolve_class.NotAnEncoderTest', compatible_class=json.encoder.JSONEncoder)
         except ValueError:
             pass
         else:
@@ -59,22 +59,22 @@ class TestResolveClass(object):
 
     def test_ensure_class_not_an_encoder_class(self):
         """
-        Verify that the default tests.test_resolve_class.TestNotAnEncoder class can be resolved from itself.
+        Verify that the default tests.test_resolve_class.NotAnEncoderTest class can be resolved from itself.
         """
 
         try:
-            _ensure_class(TestNotAnEncoder, compatible_class=json.encoder.JSONEncoder)
+            _ensure_class(NotAnEncoderTest, compatible_class=json.encoder.JSONEncoder)
         except ValueError:
             pass
         else:
             raise AssertionError('_ensure_class should not permit a non-JSONEncoder class to be resolved if compatible_class is specified')
 
 
-class TestJSONEncoder(json.encoder.JSONEncoder):
+class JSONEncoderTest(json.encoder.JSONEncoder):
     def __init__(self):
         super().__init__(self)
 
 
-class TestNotAnEncoder(object):
+class NotAnEncoderTest(object):
     def __init__(self):
         super().__init__(self)

@@ -104,7 +104,7 @@ class TestStructuredLogger(object):
         expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=7, LoggerName="test")
 
 
-@pytest.fixture(scope="session")
+# @pytest.fixture(scope="session")
 def create_logger(level=logging.INFO):
     """
     Create a StructuredLogger and StubStructuredLogHandler for use in tests.
