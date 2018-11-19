@@ -297,6 +297,8 @@ class SeqLogHandler(logging.Handler):
         self.server_url += "api/events/raw"
 
         self.session = requests.Session()
+        self.session.headers["Content-Type"] = "application/json"
+
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
 
