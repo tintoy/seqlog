@@ -1,6 +1,6 @@
 package:
   name: seqlog
-  version: 0.3.11
+  version: 0.3.13
 
 requirements:
   host:

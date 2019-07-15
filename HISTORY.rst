@@ -2,7 +2,17 @@
 History
 =======
 
-0.3.11 (2018-92-22)
+0.3.13 (2018-11-20)
+-------------------
+
+* Explicitly set ``Content-Type`` header to ``application/json`` when posting events to Seq (tintoy/seqlog#17).
+
+0.3.12 (2018-11-19)
+-------------------
+
+* If logging fails to submit an event to Seq then log the response body, if available (tintoy/seqlog#17).
+
+0.3.11 (2018-09-22)
 -------------------
 
 * Support custom ``JSONEncoder`` implementations (tintoy/seqlog#7 and tintoy/seqlog#13).
