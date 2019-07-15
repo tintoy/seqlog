@@ -30,7 +30,7 @@ def configure_from_file(file_name, override_root_logger=True, use_structured_log
     """
 
     with open(file_name) as config_file:
-        config = yaml.load(config_file)
+        config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
     configure_from_dict(config, override_root_logger)
 
