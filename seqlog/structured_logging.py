@@ -390,7 +390,6 @@ class SeqLogHandler(logging.Handler):
         finally:
             self.release()
 
-
     def _build_event_data(self, record):
         """
         Build an event data dictionary from the specified log record for submission to Seq.
