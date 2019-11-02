@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.16 (2019-11-02)
+-------------------
+
+* Pass exception details when posting events to Seq (tintoy/seqlog#22).
+
 0.3.15 (2018-11-20)
 -------------------
 

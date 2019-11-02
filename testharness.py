@@ -34,6 +34,11 @@ logger2.info("Bye, {name}! {greeting}", name="moon", greeting="Nice to meet you"
 logger3 = logging.getLogger("C")
 logger3.info("By, %s!", "moon")
 
+try:
+    raise Exception("Hello world!")
+except:
+    logger1.error("Encountered an error!", exc_info=1)
+
 print("Sleeping...")
 sleep(0.5)
 print("Done.")

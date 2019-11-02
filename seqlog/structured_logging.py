@@ -360,7 +360,7 @@ class SeqLogHandler(logging.Handler):
 
         request_body = {
             "Events": [
-                _build_event_data(record) for record in batch
+                self._build_event_data(record) for record in batch
             ]
         }
         request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
@@ -391,46 +391,58 @@ class SeqLogHandler(logging.Handler):
             self.release()
 
 
-def _build_event_data(record):
-    """
-    Build an event data dictionary from the specified log record for submission to Seq.
+    def _build_event_data(self, record):
+        """
+        Build an event data dictionary from the specified log record for submission to Seq.
 
-    :param record: The LogRecord.
-    :type record: StructuredLogRecord
-    :return: A dictionary containing event data representing the log record.
-    :rtype: dict
-    """
+        :param record: The LogRecord.
+        :type record: StructuredLogRecord
+        :return: A dictionary containing event data representing the log record.
+        :rtype: dict
+        """
 
-    if record.args:
-        # Standard (unnamed) format arguments (use 0-base index as property name).
-        log_props_shim = get_global_log_properties(record.name)
-        for (arg_index, arg) in enumerate(record.args or []):
-            log_props_shim[str(arg_index)] = arg
+        if record.args:
+            # Standard (unnamed) format arguments (use 0-base index as property name).
+            log_props_shim = get_global_log_properties(record.name)
+            for (arg_index, arg) in enumerate(record.args or []):
+                log_props_shim[str(arg_index)] = arg
 
-        event_data = {
-            "Timestamp": _get_local_timestamp(record),
-            "Level": logging.getLevelName(record.levelno),
-            "MessageTemplate": record.getMessage(),
-            "Properties": log_props_shim
-        }
-    elif isinstance(record, StructuredLogRecord):
-        # Named format arguments (and, therefore, log event properties).
-        event_data = {
-            "Timestamp": _get_local_timestamp(record),
-            "Level": logging.getLevelName(record.levelno),
-            "MessageTemplate": record.msg,
-            "Properties": record.log_props
-        }
-    else:
-        # No format arguments; interpret message as-is.
-        event_data = {
-            "Timestamp": _get_local_timestamp(record),
-            "Level": logging.getLevelName(record.levelno),
-            "MessageTemplate": record.getMessage(),
-            "Properties": _global_log_props
-        }
+            event_data = {
+                "Timestamp": _get_local_timestamp(record),
+                "Level": logging.getLevelName(record.levelno),
+                "MessageTemplate": record.getMessage(),
+                "Properties": log_props_shim
+            }
+        elif isinstance(record, StructuredLogRecord):
+            # Named format arguments (and, therefore, log event properties).
+            event_data = {
+                "Timestamp": _get_local_timestamp(record),
+                "Level": logging.getLevelName(record.levelno),
+                "MessageTemplate": record.msg,
+                "Properties": record.log_props
+            }
+        else:
+            # No format arguments; interpret message as-is.
+            event_data = {
+                "Timestamp": _get_local_timestamp(record),
+                "Level": logging.getLevelName(record.levelno),
+                "MessageTemplate": record.getMessage(),
+                "Properties": _global_log_props
+            }
 
-    return event_data
+        if record.exc_text:
+            # Rendered exception has already been cached
+            event_data["Exception"] = record.exc_text
+        elif isinstance(record.exc_info, tuple):
+            # Exception info is present
+            event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
+        elif record.exc_info:
+            # Exception info needs to be captured
+            exc_info = sys.exc_info()
+            if exc_info and exc_info[0] is not None:
+                event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
+
+        return event_data
 
 
 def _get_local_timestamp(record):
