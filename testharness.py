@@ -26,10 +26,10 @@ print("Running...")
 logging.info("Hi, {name}. {greeting}", name="Root logger", greeting="Nice to meet you")
 
 logger1 = logging.getLogger("A")
-logger1.info("Hi, {name}! {greeting}", name="world", greeting="Nice to meet you")
+logger1.info("Hi, {name}! {greeting}", name="world", greeting=b"Nice to meet you")
 
 logger2 = logging.getLogger("A.B")
-logger2.info("Bye, {name}! {greeting}", name="moon", greeting="Nice to meet you")
+logger2.info("Bye, {name}! {greeting}", name=b"moon", greeting="Nice to meet you")
 
 logger3 = logging.getLogger("C")
 logger3.info("By, %s!", "moon")

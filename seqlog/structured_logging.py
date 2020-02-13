@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import json
 import importlib
 import inspect
@@ -363,7 +364,16 @@ class SeqLogHandler(logging.Handler):
                 self._build_event_data(record) for record in batch
             ]
         }
-        request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
+
+        try:
+            request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
+        except TypeError:
+            # Non-serialisable data in the request body. This is usually because "bytes" type cannot be converted to JSON by default.
+            # Notify for each record in the batch (ugh), because we can't be sure which one caused the problem.
+            for logRecord in batch:
+                self.handleError(logRecord)
+
+            return
 
         self.acquire()
         response = None
@@ -403,7 +413,11 @@ class SeqLogHandler(logging.Handler):
         if record.args:
             # Standard (unnamed) format arguments (use 0-base index as property name).
             log_props_shim = get_global_log_properties(record.name)
+
             for (arg_index, arg) in enumerate(record.args or []):
+                # bytes is not serialisable to JSON; encode appropriately.
+                arg = _encode_bytes_if_required(arg)
+
                 log_props_shim[str(arg_index)] = arg
 
             event_data = {
@@ -414,6 +428,13 @@ class SeqLogHandler(logging.Handler):
             }
         elif isinstance(record, StructuredLogRecord):
             # Named format arguments (and, therefore, log event properties).
+
+            if (record.log_props):
+                for log_prop_name in record.log_props.keys():
+                    # bytes is not serialisable to JSON; encode appropriately.
+                    log_prop = record.log_props[log_prop_name]
+                    record.log_props[log_prop_name] = _encode_bytes_if_required(log_prop)
+
             event_data = {
                 "Timestamp": _get_local_timestamp(record),
                 "Level": logging.getLevelName(record.levelno),
@@ -501,3 +522,24 @@ def _ensure_class(class_or_class_name, compatible_class=None):
         )
 
     return target_class
+
+
+def _encode_bytes_if_required(data):
+    """
+    If the specified data is represented as bytes, convert it to a UTF8 string (using Base64 encoding if the bytes do not represent valid UTF8).
+
+    This is needed because json.dumps cannot serialise bytes.
+
+    :param data: The data to encode.
+    :return: If the data is represented as bytes, an equivalent UTF8 or Base64-encoded string; otherwise, the original data.
+    """
+
+    if (not isinstance(data, bytes)):
+        return data
+
+    try:
+        data = data.decode('utf8')
+    except UnicodeDecodeError:
+        data = base64.encodebytes(data).decode('ascii')
+
+    return data
