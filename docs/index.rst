@@ -18,6 +18,7 @@ Contents:
    readme
    installation
    usage
+   usage-gunicorn
    Modules <api/modules>
    contributing
    authors
