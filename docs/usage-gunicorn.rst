@@ -4,44 +4,57 @@ Usage (Gunicorn)
 
 Using seqlog with `Gunicorn <https://gunicorn.org/>` involves some additional configuration because of the way Gunicorn uses ``fork`` to create new worker processes.
 
-``gunicorn.py``:
+A custom ``JSONEncoder`` is also used to handle objects that are not `JSON serializable`.
+
+``api/__init__.py``:
+
+.. code-block:: python
+
+  from flask import Flask
+  app = Flask(__name__)
+
+``api/gunicorn.py``:
 
 .. code-block:: python
 
   import multiprocessing
 
-  from api.log_config_provider import (
-      configure_logging,
-      get_log_config_dict,
-      set_global_log_properties)
+  from api.logging_provider import (
+      configure_server_logging,
+      configure_worker_logging,
+      get_log_config_dict)
 
-  bind = "0.0.0.0:8000"
+  bind = '0.0.0.0:8000'
   workers = (2 * multiprocessing.cpu_count()) + 1
 
   # Configure logging
   logconfig_dict = get_log_config_dict()
-  set_global_log_properties()
+
+
+  def when_ready(server):
+      configure_server_logging(logconfig_dict)
+
 
   def post_worker_init(worker):
-      configure_logging(logconfig_dict)
+      configure_worker_logging(worker, logconfig_dict)
 
-``log_config_provider.py``:
+``api/logging_provider.py``:
 
 .. code-block:: python
 
   import logging
-  import os
   import seqlog
-  import socket
   import yaml
 
   from api import app
-  from api.config import AppConfig, LoggingConfig
-  from api.constants import APP_CONFIG_FILE, LOG_CONFIG_FILE
 
 
-  def configure_logging(log_config_dict):
-      logging.config.dictConfig(log_config_dict)
+  def configure_server_logging(log_config_dict):
+      seqlog.configure_from_dict(log_config_dict)
+
+
+  def configure_worker_logging(worker, log_config_dict):
+      seqlog.configure_from_dict(log_config_dict)
 
       with app.app_context():
           logger = logging.getLogger('gunicorn.error')
@@ -49,35 +62,29 @@ Using seqlog with `Gunicorn <https://gunicorn.org/>` involves some additional co
           app.logger.propagate = False
           app.logger.setLevel(logger.level)
 
-      set_global_log_properties()
+      configure_logger(worker.log.access_log)
+      configure_logger(worker.log.error_log)
+
+
+  def configure_logger(logger):
+      for handler in logger.handlers:
+          if handler.get_name() == 'seq':
+              try:
+                  handler.consumer.stop()
+              except:
+                  pass
+
+              try:
+                  handler.consumer.start()
+              except:
+                  pass
 
 
   def get_log_config_dict():
-      with open(LOG_CONFIG_FILE, 'r') as log_config_file:
-          log_config = yaml.safe_load(log_config_file.read())
+      with open('log_config.yml', 'r') as log_config_file:
+          log_config_dict = yaml.safe_load(log_config_file.read())
 
-      logging_config = LoggingConfig(APP_CONFIG_FILE)
-      transform_log_config(log_config, logging_config)
-      return log_config
-
-
-  def set_global_log_properties():
-      app_config = AppConfig(APP_CONFIG_FILE)
-      seqlog.set_global_log_properties(
-          ApplicationName=app_config.application_name,
-          Environment=app_config.environment,
-          MachineName=socket.gethostname(),
-          ProcessId=os.getpid())
-
-
-  def transform_log_config(log_config, logging_config):
-      log_config['root']['level'] = logging_config.level
-      log_config['loggers']['gunicorn.access']['level'] = logging_config.level
-      log_config['loggers']['gunicorn.error']['level'] = logging_config.level
-      log_config['handlers']['seq']['server_url'] = logging_config.server_url
-      log_config['handlers']['seq']['api_key'] = logging_config.api_key
-
-``log_config.yml``:
+``api/log_config.yml``:
 
 .. code-block:: python
 
@@ -118,6 +125,8 @@ Using seqlog with `Gunicorn <https://gunicorn.org/>` involves some additional co
       server_url: 'http://localhost:5341'
       api_key: ''
       batch_size: 1
+      auto_flush_timeout: 5
+      json_encoder_class: api.utilities.json_extensions.LoggingJSONEncoder
 
   formatters: 
     seq:
@@ -126,3 +135,17 @@ Using seqlog with `Gunicorn <https://gunicorn.org/>` involves some additional co
     standard:
       format: '[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s'
       datefmt: '%Y-%m-%d %H:%M:%S'
+
+``api/utilities/json_extensions.py``
+
+.. code-block:: python
+
+  import json
+
+  class LoggingJSONEncoder(json.JSONEncoder):
+
+      def default(self, obj):
+          try:
+              return json.JSONEncoder.default(self, obj)
+          except:
+              return str(obj)
