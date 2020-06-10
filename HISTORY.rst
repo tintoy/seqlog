@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.17 (2020-02-14)
+-------------------
+
+* Improve handling of log entries with log-record arguments of type "bytes" (tintoy/seqlog#25).
+
 0.3.16 (2019-11-02)
 -------------------
 
