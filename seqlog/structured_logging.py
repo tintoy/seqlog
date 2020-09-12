@@ -65,8 +65,7 @@ def set_global_log_properties(**properties):
     """
 
     global _global_log_props, _global_log_props_is_raw_dict
-    if any(callable(v) for v in properties.values()):
-        _global_log_props_is_raw_dict = False
+    _global_log_props_is_raw_dict = not any(callable(v) for v in properties.values())
     _global_log_props = {key: value for (key, value) in properties.items()}
 
 
