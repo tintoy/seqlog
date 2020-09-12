@@ -180,3 +180,5 @@ with no arguments right before logging:
     seqlog.set_global_log_properties(
         trace_id=lambda: tracer.active_span.context.trace_id,
     )
+
+If the callable returns None, it won't be added.

@@ -46,6 +46,8 @@ def get_global_log_properties(logger_name=None):
         for k, v in _global_log_props.items():
             if callable(v):
                 v = v()
+                if v is None:
+                    continue
             global_log_properties[k] = v
 
     if logger_name:
