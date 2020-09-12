@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import copy
 import json
 import importlib
 import inspect
@@ -40,7 +41,7 @@ def get_global_log_properties(logger_name=None):
     :rtype: dict
     """
     if _global_log_props_is_raw_dict:
-        global_log_properties = {key: value for (key, value) in _global_log_props.items()}
+        global_log_properties = copy.copy(_global_log_props)
     else:
         global_log_properties = {}
         for k, v in _global_log_props.items():
@@ -66,7 +67,7 @@ def set_global_log_properties(**properties):
 
     global _global_log_props, _global_log_props_is_raw_dict
     _global_log_props_is_raw_dict = not any(callable(v) for v in properties.values())
-    _global_log_props = {key: value for (key, value) in properties.items()}
+    _global_log_props = copy.copy(properties)
 
 
 def reset_global_log_properties():
