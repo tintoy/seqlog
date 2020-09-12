@@ -2,6 +2,8 @@
 History
 =======
 
+* Add an option to specify a callable in global properties
+
 0.3.17 (2020-02-14)
 -------------------
 
