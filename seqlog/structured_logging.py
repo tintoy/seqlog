@@ -26,6 +26,8 @@ _default_global_log_props = {
 
 # Global properties attached to all log entries.
 _global_log_props = _default_global_log_props
+# Whether the _global_log_props DOES NOT contain any callables
+_global_log_props_is_raw_dict = True
 
 
 def get_global_log_properties(logger_name=None):
@@ -37,8 +39,14 @@ def get_global_log_properties(logger_name=None):
     :return: A copy of the global log properties.
     :rtype: dict
     """
-
-    global_log_properties = {key: value for (key, value) in _global_log_props.items()}
+    if _global_log_props_is_raw_dict:
+        global_log_properties = {key: value for (key, value) in _global_log_props.items()}
+    else:
+        global_log_properties = {}
+        for k, v in _global_log_props.items():
+            if callable(v):
+                v = v()
+            global_log_properties[k] = v
 
     if logger_name:
         global_log_properties["LoggerName"] = logger_name
@@ -54,8 +62,9 @@ def set_global_log_properties(**properties):
     :type properties: dict
     """
 
-    global _global_log_props
-
+    global _global_log_props, _global_log_props_is_raw_dict
+    if any(callable(v) for v in properties.values()):
+        _global_log_props_is_raw_dict = False
     _global_log_props = {key: value for (key, value) in properties.items()}
 
 
@@ -64,8 +73,8 @@ def reset_global_log_properties():
     Initialize global log properties to their default values.
     """
 
-    global _global_log_props
-
+    global _global_log_props, _global_log_props_is_raw_dict
+    _global_log_props_is_raw_dict = True
     _global_log_props = _default_global_log_props
 
 
@@ -74,8 +83,8 @@ def clear_global_log_properties():
     Remove all global properties.
     """
 
-    global _global_log_props
-
+    global _global_log_props, _global_log_props_is_raw_dict
+    _global_log_props_is_raw_dict = True
     _global_log_props = {}
 
 
@@ -447,7 +456,7 @@ class SeqLogHandler(logging.Handler):
                 "Timestamp": _get_local_timestamp(record),
                 "Level": logging.getLevelName(record.levelno),
                 "MessageTemplate": record.getMessage(),
-                "Properties": _global_log_props
+                "Properties": get_global_log_properties()
             }
 
         if record.exc_text:
