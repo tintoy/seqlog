@@ -177,8 +177,14 @@ with no arguments right before logging:
 
     import seqlog
 
+    def get_trace_id():
+        if tracer.active_span is not None:
+            return hex(tracer.active_span.context.trace_id)
+        else:
+            return None
+
     seqlog.set_global_log_properties(
-        trace_id=lambda: tracer.active_span.context.trace_id,
+        trace_id=get_trace_id,
     )
 
 If the callable returns None, it won't be added.
