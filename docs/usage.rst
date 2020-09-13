@@ -169,3 +169,22 @@ To configure global log properties, call ``set_global_log_properties``, passing 
     )
 
 Note that you can also clear the global log properties (so no properties are added) by calling ``clear_global_log_properties``, and reset the global log properties to their defaults by calling ``reset_global_log_properties``.
+
+Note that is you specify a callable as part of global log properties, it will be called
+with no arguments right before logging:
+
+.. code-block:: python
+
+    import seqlog
+
+    def get_trace_id():
+        if tracer.active_span is not None:
+            return hex(tracer.active_span.context.trace_id)
+        else:
+            return None
+
+    seqlog.set_global_log_properties(
+        trace_id=get_trace_id,
+    )
+
+If the callable returns None, it won't be added.
