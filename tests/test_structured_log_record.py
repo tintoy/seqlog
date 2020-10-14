@@ -45,6 +45,10 @@ class TestStructuredLogRecord(object):
 
         expect.log_template(record, "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}")
 
+    def test_log_invalid_keys(self):
+        msg = self.create_test_log_record(logging.INFO, '{invalid} {test}').getMessage()
+        assert msg == '{invalid} {test}'
+
     def test_named_arguments_level(self):
         record = self.create_test_log_record(
             logging.WARNING,
