@@ -2,6 +2,9 @@
 History
 =======
 
+0.3.19 (2020-10-15)
+-------------------
+
 * Fixed logging messages containing braces
 
 0.3.18 (2020-09-13)
