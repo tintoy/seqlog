@@ -34,7 +34,7 @@ class TestLogRecordConsumer(object):
         seqlog.set_callback_on_failure(handle_failure)
 
         lh.publish_log_batch([le])
-        self.assertTrue(callable_called)
+        assert callable_called
     #
     # Without flush timeout
     #
