@@ -34,6 +34,7 @@ _callback_on_failure = None     # type: typing.Callable[[Exception], None]
 
 def set_callback_on_failure(callback):  # type: (typing.Callable[[Exception], None]) -> None
     global _callback_on_failure
+    assert callable(callback), 'Given callback is not callable'
     _callback_on_failure = callback
 
 
