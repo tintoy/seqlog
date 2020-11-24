@@ -371,7 +371,7 @@ class SeqLogHandler(logging.Handler):
         finally:
             super().close()
 
-    def publish_log_batch(self, batch):
+    def publish_log_batch(self, batch):     # type: (typing.Iterable[logging.LogRecord]) -> None
         """
         Publish a batch of log records.
 

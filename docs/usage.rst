@@ -206,3 +206,7 @@ use the following function:
 
 The callable that you provide will accept a single positional argument, 
 which is the requests exception instance that was the reason for the fail.
+
+.. note:: This callable will be called only for I/O errors, errors stemming
+          from seqlog not being able to convert your records into JSON won't
+          show up here!
