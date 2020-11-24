@@ -199,7 +199,10 @@ use the following function:
 
     from seqlog import set_callback_on_failure
     
-    def handle_a_failure(e):    # type: (Exception) -> None
+    def handle_a_failure(e):    # type: (requests.RequestException) -> None
         print('Failure occurred during log submission: %s' % (e, ))
         
    set_callback_on_failure(handle_a_failure)
+
+The callable that you provide will accept a single positional argument, 
+which is the requests exception instance that was the reason for the fail.
