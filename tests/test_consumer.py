@@ -7,15 +7,34 @@ test_seqlog
 
 Tests for `seqlog.consumer.QueueConsumer` module.
 """
-
+import logging
 from queue import Queue
 from threading import Event
 from time import sleep
 
+import seqlog
+
+from seqlog.structured_logging import StructuredLogRecord
+
+from seqlog import SeqLogHandler
 from seqlog.consumer import QueueConsumer
 
 
 class TestLogRecordConsumer(object):
+
+    def test_callable_failures(self):
+        lh = SeqLogHandler('localhost')
+        le = StructuredLogRecord('test', logging.INFO, '/dev/null', 1, 'Hello world!', (), None)
+        callable_called = False
+
+        def handle_failure(e):
+            nonlocal callable_called
+            callable_called = True
+
+        seqlog.set_callback_on_failure(handle_failure)
+
+        lh.publish_log_batch([le])
+        self.assertTrue(callable_called)
     #
     # Without flush timeout
     #
