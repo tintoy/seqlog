@@ -188,3 +188,25 @@ with no arguments right before logging:
     )
 
 If the callable returns None, it won't be added.
+
+Callback on log submission failure
+----------------------------------
+
+If you wish to set a callable to be invoked each time log submission fails, 
+use the following function:
+
+.. code-block:: python
+
+    from seqlog import set_callback_on_failure
+    
+    def handle_a_failure(e):    # type: (requests.RequestException) -> None
+        print('Failure occurred during log submission: %s' % (e, ))
+        
+   set_callback_on_failure(handle_a_failure)
+
+The callable that you provide will accept a single positional argument, 
+which is the requests exception instance that was the reason for the fail.
+
+.. note:: This callable will be called only for I/O errors, errors stemming
+          from seqlog not being able to convert your records into JSON won't
+          show up here!

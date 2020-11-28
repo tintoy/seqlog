@@ -5,6 +5,7 @@ import copy
 import json
 import importlib
 import inspect
+import typing as tp
 import logging
 import os
 import socket
@@ -29,6 +30,13 @@ _default_global_log_props = {
 _global_log_props = _default_global_log_props
 # Whether the _global_log_props DOES NOT contain any callables
 _global_log_props_is_raw_dict = True
+_callback_on_failure = None     # type: tp.Callable[[Exception], None]
+
+
+def set_callback_on_failure(callback):  # type: (tp.Callable[[Exception], None]) -> None
+    global _callback_on_failure
+    assert callable(callback), 'Given callback is not callable'
+    _callback_on_failure = callback
 
 
 def get_global_log_properties(logger_name=None):
@@ -364,7 +372,7 @@ class SeqLogHandler(logging.Handler):
         finally:
             super().close()
 
-    def publish_log_batch(self, batch):
+    def publish_log_batch(self, batch):     # type: (tp.Iterable[StructuredLogRecord]) -> None
         """
         Publish a batch of log records.
 
@@ -402,6 +410,9 @@ class SeqLogHandler(logging.Handler):
         except requests.RequestException as requestFailed:
             # Only notify for the first record in the batch, or we'll be generating too much noise.
             self.handleError(batch[0])
+
+            if _callback_on_failure is not None:
+                _callback_on_failure(requestFailed)
 
             # Attempt to log error response
             if not requestFailed.response:
