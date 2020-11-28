@@ -10,7 +10,6 @@ from seqlog.structured_logging import get_global_log_properties as _get_global_l
 from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
 from seqlog.structured_logging import clear_global_log_properties as _clear_global_log_properties
 from seqlog.structured_logging import reset_global_log_properties as _reset_global_log_properties
-from seqlog.structured_logging import set_callback_on_failure
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
