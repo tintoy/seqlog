@@ -99,7 +99,7 @@ def set_callback_on_failure(callback):  # type: (tp.Callable[[Exception], None])
     :param callback: A callable that takes an Exception (representing the logging failure) as its only argument.
     :type callback: callable
     """
-    
+
     global _callback_on_failure
     assert callable(callback), 'Given callback is not callable'
     _callback_on_failure = callback
