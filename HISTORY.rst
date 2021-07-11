@@ -2,8 +2,8 @@
 History
 =======
 
-0.3.20 (TBA)
-------------
+0.3.20 (2020-10-15)
+-------------------
 
 * Added a callable to be called each time log submission fails
 
