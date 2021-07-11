@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.21 (TBA)
+------------
+
+* added checking if None was passed as element of a message
+
 0.3.20 (2020-10-15)
 -------------------
 

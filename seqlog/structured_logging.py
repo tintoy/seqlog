@@ -10,6 +10,7 @@ import logging
 import os
 import socket
 import sys
+import warnings
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
@@ -143,6 +144,9 @@ class StructuredLogRecord(logging.LogRecord):
         Get a formatted message representing the log record (with arguments replaced by values as appropriate).
         :return: The formatted message.
         """
+        if self.msg is None:
+            warnings.warn('You just passed a None as a message content!', UserWarning)
+            self.msg = ''
 
         if self.args:
             return self.msg % self.args
