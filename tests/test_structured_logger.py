@@ -19,6 +19,12 @@ from tests.stubs import StubStructuredLogHandler
 
 
 class TestStructuredLogger(object):
+
+    def test_passing_none(self):
+        logger, handler = create_logger()
+
+        logger.info(None)
+
     def test_ordinal_arguments_message(self):
         logger, handler = create_logger()
 
