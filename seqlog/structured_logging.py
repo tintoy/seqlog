@@ -307,6 +307,21 @@ class ConsoleStructuredLogHandler(logging.Handler):
             print("\tLog entry properties: {}".format(repr(record.kwargs)))
 
 
+def best_effort_json_encode(arg):
+    try:
+        return json.dumps(arg)
+    except TypeError:
+        try:
+            return str(arg)
+        except TypeError:
+            try:
+                return repr(arg)
+            except TypeError:
+                return '<type %s>' % (type(arg), )
+    except ReferenceError:
+        return '<gone weak reference>'
+
+
 class SeqLogHandler(logging.Handler):
     """
     Log handler that posts to Seq.
@@ -393,21 +408,19 @@ class SeqLogHandler(logging.Handler):
         if len(batch) == 0:
             return
 
-        request_body = {
-            "Events": [
-                self._build_event_data(record) for record in batch
-            ]
-        }
+        processed_records = []
+        for record in batch:
+            resp = self._build_event_data(record)
+            try:
+                resp = json.dumps(resp, cls=self.json_encoder_class)
+            except TypeError:
+                # cannot serialize to JSON
+                # report an serialization error and continue serializing what you can
+                self.handleError(record)
+                continue
+            processed_records.append(resp)
 
-        try:
-            request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
-        except TypeError:
-            # Non-serialisable data in the request body. This is usually because "bytes" type cannot be converted to JSON by default.
-            # Notify for each record in the batch (ugh), because we can't be sure which one caused the problem.
-            for logRecord in batch:
-                self.handleError(logRecord)
-
-            return
+        request_body_json = '{"Events": [%s]}' % (','.join(processed_records), )
 
         self.acquire()
         response = None
@@ -454,7 +467,7 @@ class SeqLogHandler(logging.Handler):
             for (arg_index, arg) in enumerate(record.args or []):
                 # bytes is not serialisable to JSON; encode appropriately.
                 arg = _encode_bytes_if_required(arg)
-
+                arg = best_effort_json_encode(arg)
                 log_props_shim[str(arg_index)] = arg
 
             event_data = {
@@ -466,11 +479,13 @@ class SeqLogHandler(logging.Handler):
         elif isinstance(record, StructuredLogRecord):
             # Named format arguments (and, therefore, log event properties).
 
-            if (record.log_props):
+            if record.log_props:
                 for log_prop_name in record.log_props.keys():
                     # bytes is not serialisable to JSON; encode appropriately.
                     log_prop = record.log_props[log_prop_name]
-                    record.log_props[log_prop_name] = _encode_bytes_if_required(log_prop)
+                    arg = _encode_bytes_if_required(log_prop)
+                    arg = best_effort_json_encode(arg)
+                    record.log_props[log_prop_name] = arg
 
             event_data = {
                 "Timestamp": _get_local_timestamp(record),

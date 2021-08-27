@@ -25,6 +25,15 @@ class TestStructuredLogger(object):
 
         logger.info(None)
 
+    def test_unjsonable(self):
+        logger, handler = create_logger()
+
+        class Test:
+            pass
+
+        logger.info('message %s', Test())
+        handler.pop_record()
+
     def test_ordinal_arguments_message(self):
         logger, handler = create_logger()
 
