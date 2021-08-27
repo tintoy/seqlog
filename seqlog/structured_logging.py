@@ -456,7 +456,13 @@ class SeqLogHandler(logging.Handler):
                 try:
                     json.dumps(arg)
                 except TypeError:
-                    arg = str(arg)
+                    try:
+                        arg = str(arg)
+                    except TypeError:
+                        try:
+                            arg = repr(arg)
+                        except TypeError:
+                            arg = '<could not serialize>'
 
                 log_props_shim[str(arg_index)] = arg
 
