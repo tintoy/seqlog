@@ -393,21 +393,19 @@ class SeqLogHandler(logging.Handler):
         if len(batch) == 0:
             return
 
-        request_body = {
-            "Events": [
-                self._build_event_data(record) for record in batch
-            ]
-        }
+        processed_records = []
+        for record in batch:
+            resp = self._build_event_data(record)
+            try:
+                resp = json.dumps(resp, cls=self.json_encoder_class)
+            except TypeError:
+                # cannot serialize to JSON
+                # report an serialization error and continue serializing what you can
+                self.handleError(record)
+                continue
+            processed_records.append(resp)
 
-        try:
-            request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
-        except TypeError:
-            # Non-serialisable data in the request body. This is usually because "bytes" type cannot be converted to JSON by default.
-            # Notify for each record in the batch (ugh), because we can't be sure which one caused the problem.
-            for logRecord in batch:
-                self.handleError(logRecord)
-
-            return
+        request_body_json = '{"Events": [%s]}' % (','.join(processed_records), )
 
         self.acquire()
         response = None

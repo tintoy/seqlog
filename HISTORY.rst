@@ -6,6 +6,7 @@ History
 ------------
 
 * added checking if None was passed as element of a message
+* fixed #13
 
 0.3.20 (2020-10-15)
 -------------------
