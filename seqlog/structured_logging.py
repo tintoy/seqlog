@@ -317,7 +317,9 @@ def best_effort_json_encode(arg):
             try:
                 return repr(arg)
             except TypeError:
-                return 'type %s, could not JSONify' % (type(arg), )
+                return '<type %s>' % (type(arg), )
+    except ReferenceError:
+        return '<gone weak reference>'
 
 
 class SeqLogHandler(logging.Handler):
