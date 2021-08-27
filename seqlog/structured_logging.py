@@ -307,6 +307,19 @@ class ConsoleStructuredLogHandler(logging.Handler):
             print("\tLog entry properties: {}".format(repr(record.kwargs)))
 
 
+def best_effort_json_encode(arg):
+    try:
+        return json.dumps(arg)
+    except TypeError:
+        try:
+            return str(arg)
+        except TypeError:
+            try:
+                return repr(arg)
+            except TypeError:
+                return 'type %s, could not JSONify' % (type(arg), )
+
+
 class SeqLogHandler(logging.Handler):
     """
     Log handler that posts to Seq.
@@ -452,18 +465,7 @@ class SeqLogHandler(logging.Handler):
             for (arg_index, arg) in enumerate(record.args or []):
                 # bytes is not serialisable to JSON; encode appropriately.
                 arg = _encode_bytes_if_required(arg)
-
-                try:
-                    json.dumps(arg)
-                except TypeError:
-                    try:
-                        arg = str(arg)
-                    except TypeError:
-                        try:
-                            arg = repr(arg)
-                        except TypeError:
-                            arg = '<could not serialize>'
-
+                arg = best_effort_json_encode(arg)
                 log_props_shim[str(arg_index)] = arg
 
             event_data = {
@@ -475,11 +477,13 @@ class SeqLogHandler(logging.Handler):
         elif isinstance(record, StructuredLogRecord):
             # Named format arguments (and, therefore, log event properties).
 
-            if (record.log_props):
+            if record.log_props:
                 for log_prop_name in record.log_props.keys():
                     # bytes is not serialisable to JSON; encode appropriately.
                     log_prop = record.log_props[log_prop_name]
-                    record.log_props[log_prop_name] = _encode_bytes_if_required(log_prop)
+                    arg = _encode_bytes_if_required(log_prop)
+                    arg = best_effort_json_encode(arg)
+                    record.log_props[log_prop_name] = arg
 
             event_data = {
                 "Timestamp": _get_local_timestamp(record),
