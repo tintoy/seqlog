@@ -453,6 +453,11 @@ class SeqLogHandler(logging.Handler):
                 # bytes is not serialisable to JSON; encode appropriately.
                 arg = _encode_bytes_if_required(arg)
 
+                try:
+                    json.dumps(arg)
+                except TypeError:
+                    arg = str(arg)
+
                 log_props_shim[str(arg_index)] = arg
 
             event_data = {
