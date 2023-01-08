@@ -35,6 +35,7 @@ class TestLogRecordConsumer(object):
 
         lh.publish_log_batch([le])
         assert callable_called
+
     #
     # Without flush timeout
     #

@@ -5,7 +5,6 @@ import copy
 import json
 import importlib
 import inspect
-import typing as tp
 import logging
 import os
 import socket
@@ -32,6 +31,9 @@ _global_log_props = _default_global_log_props
 # Whether the _global_log_props DOES NOT contain any callables
 _global_log_props_is_raw_dict = True
 _callback_on_failure = None     # type: tp.Callable[[Exception], None]
+
+# Support extra properties via the `extra` logger argument?
+_support_extra_properties = False
 
 
 def get_global_log_properties(logger_name=None):
@@ -201,6 +203,10 @@ class StructuredLogger(logging.Logger):
                 continue
 
             log_props[prop] = kwargs[prop]
+
+        if extra and _support_extra_properties:
+            for extra_prop in extra.keys():
+                log_props['Extra_' + extra_prop] = extra[extra_prop]
 
         extra = extra or {}
         extra['log_props'] = log_props
