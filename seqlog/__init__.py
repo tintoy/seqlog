@@ -2,23 +2,24 @@
 
 import logging
 import logging.config
+import typing
 import yaml
 
-import seqlog.structured_logging as structured_logging
-
-from structured_logging import StructuredLogger, StructuredRootLogger
-from structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
-from structured_logging import get_global_log_properties as _get_global_log_properties
-from structured_logging import set_global_log_properties as _set_global_log_properties
-from structured_logging import clear_global_log_properties as _clear_global_log_properties
-from structured_logging import reset_global_log_properties as _reset_global_log_properties
+from seqlog.feature_flags import FeatureFlag, configure_feature
+from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
+from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
+from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
+from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
+from seqlog.structured_logging import clear_global_log_properties as _clear_global_log_properties
+from seqlog.structured_logging import reset_global_log_properties as _reset_global_log_properties
+from seqlog.structured_logging import set_callback_on_failure as _set_callback_on_failure
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.3.20'
+__version__ = '0.3.23'
 
 
-def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False):
+def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False):
     """
     Configure Seq logging using YAML-format configuration file.
 
@@ -30,9 +31,12 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     :type override_root_logger: bool
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
+    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
+    :type support_stack_info: bool
     """
 
-    structured_logging._support_extra_properties = support_extra_properties
+    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
+    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
@@ -40,7 +44,7 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     configure_from_dict(config, override_root_logger)
 
 
-def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False):
+def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False, support_stack_info=False):
     """
     Configure Seq logging using a dictionary.
 
@@ -54,9 +58,12 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
     :type use_structured_logger: bool
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
+    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
+    :type support_stack_info: bool
     """
 
-    structured_logging._support_extra_properties = support_extra_properties
+    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
+    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     if override_root_logger:
         _override_root_logger()
@@ -72,6 +79,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                batch_size=10, auto_flush_timeout=None,
                additional_handlers=None, override_root_logger=False,
                json_encoder_class=None, support_extra_properties=False,
+               support_stack_info=False,
                **kwargs):
     """
     Configure the logging system to send log entries to Seq.
@@ -90,11 +98,14 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :param json_encoder_class: The custom JSONEncoder class (if any) to use. It not specified, the default JSONEncoder will be used.
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
+    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
+    :type support_stack_info: bool
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
 
-    structured_logging._support_extra_properties = support_extra_properties
+    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
+    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     logging.setLoggerClass(StructuredLogger)
 
@@ -119,7 +130,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     return log_handlers[0]
 
 
-def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, **kwargs):
+def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, support_stack_info=False, **kwargs):
     """
     Configure the logging system to send log entries to the console.
 
@@ -131,9 +142,12 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
                                  when using the logging.XXX functions.
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
+    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
+    :type support_stack_info: bool
     """
 
-    structured_logging._support_extra_properties = support_extra_properties
+    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
+    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     logging.setLoggerClass(StructuredLogger)
 
@@ -148,6 +162,17 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
         level=level,
         **kwargs
     )
+
+
+def set_callback_on_failure(callback):  # type: (typing.Callable[[Exception], None]) -> None
+    """
+    Configure a callback to be invoked each time logging fails.
+
+    :param callback: A callable that takes an Exception (representing the logging failure) as its only argument.
+    :type callback: callable
+    """
+
+    _set_callback_on_failure(callback)
 
 
 def get_global_log_properties():

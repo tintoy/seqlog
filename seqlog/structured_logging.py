@@ -9,13 +9,15 @@ import logging
 import os
 import socket
 import sys
+import typing as tp
 import warnings
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
 import requests
 
-from .consumer import QueueConsumer
+from seqlog.consumer import QueueConsumer
+from seqlog.feature_flags import FeatureFlag, is_feature_enabled
 
 # Well-known keyword arguments used by the logging system.
 _well_known_logger_kwargs = {"extra", "exc_info", "func", "sinfo"}
@@ -31,9 +33,6 @@ _global_log_props = _default_global_log_props
 # Whether the _global_log_props DOES NOT contain any callables
 _global_log_props_is_raw_dict = True
 _callback_on_failure = None     # type: tp.Callable[[Exception], None]
-
-# Support extra properties via the `extra` logger argument?
-_support_extra_properties = False
 
 
 def get_global_log_properties(logger_name=None):
@@ -176,6 +175,8 @@ class StructuredLogger(logging.Logger):
 
         super().__init__(name, level)
 
+        self._support_extra_properties = is_feature_enabled(FeatureFlag.EXTRA_PROPERTIES)
+
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, **kwargs):
         """
         Called by public logger methods to generate a log entry.
@@ -204,7 +205,7 @@ class StructuredLogger(logging.Logger):
 
             log_props[prop] = kwargs[prop]
 
-        if extra and _support_extra_properties:
+        if extra and self._support_extra_properties:
             for extra_prop in extra.keys():
                 log_props['Extra_' + extra_prop] = extra[extra_prop]
 
@@ -231,9 +232,14 @@ class StructuredLogger(logging.Logger):
 
         # Do we have named format arguments?
         if extra and 'log_props' in extra:
-            return StructuredLogRecord(name, level, fn, lno, msg, args, exc_info, func, sinfo, extra['log_props'])
+            record = StructuredLogRecord(name, level, fn, lno, msg, args, exc_info, func, sinfo, extra['log_props'])
+        else:
+            record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
 
-        return super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
+        if sinfo and not record.exc_text:
+            setattr(record, 'exc_text', sinfo)
+
+        return record
 
 
 class StructuredRootLogger(logging.RootLogger):
@@ -346,6 +352,8 @@ class SeqLogHandler(logging.Handler):
         """
 
         super().__init__()
+
+        self._support_stack_info = is_feature_enabled(FeatureFlag.STACK_INFO)
 
         self.server_url = server_url
         if not self.server_url.endswith("/"):
@@ -511,6 +519,9 @@ class SeqLogHandler(logging.Handler):
         if record.exc_text:
             # Rendered exception has already been cached
             event_data["Exception"] = record.exc_text
+        elif self._support_stack_info and record.stack_info and not record.exc_info:
+            # Feature flag is set: fall back to stack_info (sinfo) if exc_info is not present
+            event_data["Exception"] = record.stack_info
         elif isinstance(record.exc_info, tuple):
             # Exception info is present
             event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
