@@ -16,7 +16,8 @@ Configure logging programmatically
       batch_size=10,
       auto_flush_timeout=10,  # seconds
       override_root_logger=True,
-      json_encoder_class=json.encoder.JSONEncoder  # Optional; only specify this if you want to use a custom JSON encoder
+      json_encoder_class=json.encoder.JSONEncoder,  # Optional; only specify this if you want to use a custom JSON encoder
+      support_extra_properties=True # Optional; only specify this if you want to pass additional log record properties via the "extra" argument.
    )
 
 For the best experience, use ``{x}``-style named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).

@@ -10,12 +10,11 @@ Tests for `seqlog.structured_logging.StructuredLogRecord` class.
 
 import logging
 
-
 from seqlog.structured_logging import StructuredLogRecord
 import tests.assertions as expect
 
 # Turn off thread-related logging, since it would interfere with these tests.
-logging.threading = False
+logging.logThreads = False
 
 
 class TestStructuredLogRecord(object):

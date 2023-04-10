@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.22 (TBA)
+------------
+
+* Add support for handling extra log properties via the `extra` argument (tintoy/seqlog#41).
+
 0.3.21 (TBA)
 ------------
 
