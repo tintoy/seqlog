@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.25 (2023-04-18)
+-------------------
+
+* Temporarily revert changes for including `stack_info` (if present) in event payloads sent to Seq (tintoy/seqlog#42).
+
 0.3.24 (2023-04-14)
 -------------------
 
