@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.26 (2023-04-20)
+-------------------
+
+* Don't attempt to JSON-encode log event properties that are already strings (tintoy/seqlog#42, tintoy/seqlog#48).
+
 0.3.25 (2023-04-18)
 -------------------
 
