@@ -320,6 +320,10 @@ class ConsoleStructuredLogHandler(logging.Handler):
 
 
 def best_effort_json_encode(arg):
+    # No encoding necessary for strings.
+    if isinstance(arg, str):
+        return arg
+
     try:
         return json.dumps(arg)
     except TypeError:
@@ -524,7 +528,10 @@ class SeqLogHandler(logging.Handler):
             event_data["Exception"] = record.stack_info
         elif isinstance(record.exc_info, tuple):
             # Exception info is present
-            event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
+            if record.exc_info[0] is None and self._support_stack_info and record.stack_info:
+                event_data["Exception"] = "{0}--NoExeption\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
+            else:
+                event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
         elif record.exc_info:
             # Exception info needs to be captured
             exc_info = sys.exc_info()
