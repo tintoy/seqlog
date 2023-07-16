@@ -9,7 +9,6 @@ Tests for `seqlog.structured_logging.StructuredLogger` class.
 """
 
 import logging
-import pytest
 
 import tests.assertions as expect
 

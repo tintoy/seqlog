@@ -453,20 +453,32 @@ class SeqLogHandler(logging.Handler):
             # Only notify for the first record in the batch, or we'll be generating too much noise.
             self.handleError(batch[0])
 
-            if _callback_on_failure is not None:
-                _callback_on_failure(requestFailed)
-
             # Attempt to log error response
             if not requestFailed.response:
-                sys.stderr.write('Response from Seq was unavailable.\n')
+                _log_logger_error('response from Seq was unavailable.', requestFailed)
             elif not requestFailed.response.text:
-                sys.stderr.write('Response body from Seq was empty.\n')
+                _log_logger_error('response body from Seq was empty.', requestFailed)
             else:
-                sys.stderr.write('Response body from Seq:\n{0}\n'.format(
-                    requestFailed.response.text
-                ))
+                _log_logger_error('response body from Seq:\n\n{0}'.format(requestFailed.response.text), requestFailed)
         finally:
             self.release()
+
+    def handleError(self, record: StructuredLogRecord):
+        """
+        Handle errors which occur during an emit() call.
+
+        :param record: The StructuredLogRecord being logged.
+        """
+
+        exception = None
+
+        if _callback_on_failure:
+            _, exception, _ = sys.exc_info()
+
+        super().handleError(record)
+
+        if _callback_on_failure:
+            _callback_on_failure(exception)
 
     def _build_event_data(self, record):
         """
@@ -619,3 +631,15 @@ def _encode_bytes_if_required(data):
         data = base64.encodebytes(data).decode('ascii')
 
     return data
+
+
+def _log_logger_error(message: str, exception: Exception = None):
+    """
+    Log an error encountered by a logger or logging infrastructure (if a failure callback has not been registered).
+
+    :param message: An exception representing the error.
+    :param exception: An exception representing the error.
+    """
+
+    if (not _callback_on_failure):
+        sys.stderr.write('Logging error - {0}\n\n{1}\n\n'.format(message, exception))
