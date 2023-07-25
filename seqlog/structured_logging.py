@@ -236,9 +236,6 @@ class StructuredLogger(logging.Logger):
         else:
             record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
 
-        if sinfo and not record.exc_text:
-            setattr(record, 'exc_text', sinfo)
-
         return record
 
 
