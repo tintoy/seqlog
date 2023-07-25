@@ -236,6 +236,9 @@ class StructuredLogger(logging.Logger):
         else:
             record = super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
 
+        if sinfo and not record.exc_text:
+            setattr(record, 'exc_text', sinfo)
+
         return record
 
 
@@ -487,47 +490,31 @@ class SeqLogHandler(logging.Handler):
         :rtype: dict
         """
 
-        if record.args:
+        logger_name = record.name if record.name else None
+        event_data = {
+            "Timestamp": _get_local_timestamp(record),
+            "Level": logging.getLevelName(record.levelno),
+            "MessageTemplate": record.getMessage(),
+            "Properties": get_global_log_properties(logger_name)
+        }
+        if hasattr(record, 'args'):
             # Standard (unnamed) format arguments (use 0-base index as property name).
             log_props_shim = get_global_log_properties(record.name)
 
             for (arg_index, arg) in enumerate(record.args or []):
-                # bytes is not serialisable to JSON; encode appropriately.
-                arg = _encode_bytes_if_required(arg)
-                arg = best_effort_json_encode(arg)
-                log_props_shim[str(arg_index)] = arg
+                event_data["Properties"][str(arg_index)] = arg
 
-            event_data = {
-                "Timestamp": _get_local_timestamp(record),
-                "Level": logging.getLevelName(record.levelno),
-                "MessageTemplate": record.getMessage(),
-                "Properties": log_props_shim
-            }
-        elif isinstance(record, StructuredLogRecord):
-            # Named format arguments (and, therefore, log event properties).
+        if hasattr(record, 'log_props'):
+            # assume record is StructuredLogRecord
+            for prop_name in record.log_props.keys():
+                event_data["Properties"][prop_name] = record.log_props[prop_name]
 
-            if record.log_props:
-                for log_prop_name in record.log_props.keys():
-                    # bytes is not serialisable to JSON; encode appropriately.
-                    log_prop = record.log_props[log_prop_name]
-                    arg = _encode_bytes_if_required(log_prop)
-                    arg = best_effort_json_encode(arg)
-                    record.log_props[log_prop_name] = arg
-
-            event_data = {
-                "Timestamp": _get_local_timestamp(record),
-                "Level": logging.getLevelName(record.levelno),
-                "MessageTemplate": record.msg,
-                "Properties": record.log_props
-            }
-        else:
-            # No format arguments; interpret message as-is.
-            event_data = {
-                "Timestamp": _get_local_timestamp(record),
-                "Level": logging.getLevelName(record.levelno),
-                "MessageTemplate": record.getMessage(),
-                "Properties": get_global_log_properties()
-            }
+        for log_prop_name in event_data["Properties"].keys():
+            # bytes is not serialisable to JSON; encode appropriately.
+            log_prop = event_data["Properties"][log_prop_name]
+            arg = _encode_bytes_if_required(log_prop)
+            arg = best_effort_json_encode(arg)
+            event_data["Properties"][log_prop_name] = arg
 
         if record.exc_text:
             # Rendered exception has already been cached
