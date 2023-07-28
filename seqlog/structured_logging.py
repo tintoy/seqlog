@@ -149,6 +149,10 @@ class StructuredLogRecord(logging.LogRecord):
             warnings.warn('You just passed a None as a message content!', UserWarning)
             self.msg = ''
 
+        # See https://docs.python.org/3/library/logging.html#logging.LogRecord.getMessage for details
+        if not isinstance(self.msg, str):
+            self.msg = str(self.msg)
+        
         if self.args:
             return self.msg % self.args
         elif self.log_props:
