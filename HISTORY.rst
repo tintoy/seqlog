@@ -2,6 +2,13 @@
 History
 =======
 
+0.3.27 (2023-08-03)
+-------------------
+
+* StructuredLogRecord now converts non-string msg to string (tintoy/seqlog#51).
+* Improve logging-error logging behaviour when a failure handler has been registered (tintoy/seqlog#52).
+* Improve implementation of `SeqLogHandler._build_event_data()` (tintoy/seqlog#42).
+
 0.3.26 (2023-04-20)
 -------------------
 

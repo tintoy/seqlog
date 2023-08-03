@@ -11,3 +11,4 @@ Contributors
 ------------
 
 * Piotr Maślanka <pmaslanka@smok.co>
+* Vacant0mens
