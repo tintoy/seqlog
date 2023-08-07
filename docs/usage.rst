@@ -2,9 +2,28 @@
 Usage
 =====
 
-Configure logging programmatically
-----------------------------------
+Getting Started
+---------------
+The only required arguments to start using the seqlog module are the ``server_url`` and ``api_key`` arguments.
 
+Quickest way to get logging is the ``seqlog.log_to_seq()`` module-level function:
+.. code-block:: python
+
+   import seqlog
+
+   my_seq_logger = seqlog.log_to_seq(server_url="http://my-seq-server:5341/", api_key="My API Key")
+   my_seq_logger.info("This is an info log.")
+
+If needed, a console logger class is provided in this module as well:
+.. code-block:: python
+
+   console_logger = seqlog.log_to_console()
+   console_logger.warning("This is a warning log that you'll see in your console.")
+
+Configure logging programmatically with module functions
+--------------------------------------------------------
+
+Logging to Seq using the ``log_to_seq()`` module function can be configured with more parameters:
 .. code-block:: python
 
    import seqlog
