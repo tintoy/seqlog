@@ -168,19 +168,19 @@ def log_to_console(level=logging.WARNING, name='DefaultSeqConsoleLogger',
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
-    logging.setLoggerClass(StructuredLogger)
-
     if override_root_logger:
         _override_root_logger()
 
-    logging.basicConfig(
-        style='{',
-        handlers=[
-            ConsoleStructuredLogHandler()
-        ],
-        level=level,
-        **kwargs
-    )
+    if formatter == None:
+        formatter = logging.Formatter(fmt='{asctime} - {message}', style='{')
+
+    handler.setFormatter(formatter)
+
+    console_logger = StructuredLogger(name=name, level=level)
+
+    console_logger.addHandler(handler)
+
+    return console_logger
 
 
 def set_callback_on_failure(callback):  # type: (typing.Callable[[Exception], None]) -> None
