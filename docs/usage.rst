@@ -58,7 +58,40 @@ The ordinal format arguments are stored in the log entry properties using the 0-
 
    logging.info("Hello, %s!", "World")
 
-Note that mixing named and ordinal arguments is not currently supported.
+Note: mixing named and ordinal arguments in the same log handler is not supported. Each log Handler's Formatter class has a specific (or default) 'style'.
+
+Configure logging by inheritance
+--------------------------------
+.. code-block:: python
+   import seqlog
+
+   class MyLogger(seqlog.StructuredLogger):
+     def __init__(self, server_url='http://seqserver.foo.bar', api_key='', level=seqlog.logging.INFO,
+                  batch_size=10, auto_flush_timeout=60, json_encoder_class=JSONEncoder):
+       super().__init__(level=level, name='Seq')
+       # initialize the handler
+       seq_handler = seqlog.SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
+       # initialize the formatter
+       seq_formatter = seqlog.logging.Formatter(fmt='{asctime} - {message}', style='{')
+       # set handler's formatter
+       seq_handler.setFormatter(seq_formatter)
+       # add handler to MyLogger
+       self.addHandler(seq_handler)
+       # set root logger as parent
+       self.parent = seqlog.logging.getLogger()
+       # propagate logs to the root logger
+       self.propagate = True
+       stack_feature = seqlog.FeatureFlag('STACK_INFO')
+       seqlog.feature_flags.enable_feature(stack_feature)
+
+       
+   my_logger = MyLogger(api_key='MY-SUPER-SECRET-API-KEY')
+
+   my_logger.info("Doing stuff ...")
+   # ... do stuff
+
+   my_logger.warning("This is a warning about doing stuff.", stack_info=True)
+
 
 Configure logging from a file
 -----------------------------
