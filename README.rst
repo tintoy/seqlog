@@ -14,7 +14,7 @@ SeqLog
         :alt: Documentation Status
 
 
-SeqLog enables logging from Python to `Seq <https://getseq.net/>`_.
+SeqLog enables logging from Python to `Seq <https://getseq.net/>` using a custom implementation of the stdlib `logging module. <https://docs.python.org/3/library/logging.html>`
 
 It also adds support for logging with named format arguments (via keyword arguments) in the same way ``"{arg1}".format(arg1="foo")`` does.
 
