@@ -114,28 +114,30 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
-
-    logging.setLoggerClass(StructuredLogger)
-
+    
     if override_root_logger:
         _override_root_logger()
 
-    log_handlers = [
-        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
-    ]
+    if handler == None:
+        seq_log_handler = SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
+    else:
+        seq_log_handler = handler
+
+    if formatter == None:
+        formatter = logging.Formatter(fmt='{asctime} - {message}', style='{')
+
+    seq_log_handler.setFormatter(formatter)
+
+    structured_logger = StructuredLogger(name=name, level=level)
+
+    structured_logger.addHandler(seq_log_handler)
 
     if additional_handlers:
         for additional_handler in additional_handlers:
-            log_handlers.append(additional_handler)
+            structured_logger.addHandler(additional_handler)
 
-    logging.basicConfig(
-        style='{',
-        handlers=log_handlers,
-        level=level,
-        **kwargs
-    )
+    return structured_logger
 
-    return log_handlers[0]
 
 def log_to_console(level=logging.WARNING, name='DefaultSeqConsoleLogger',
                    override_root_logger=False, support_extra_properties=False,
