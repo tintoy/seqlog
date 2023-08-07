@@ -9,25 +9,28 @@ Configure logging programmatically
 
    import seqlog
 
-   seqlog.log_to_seq(
+   my_seq_logger = seqlog.log_to_seq(
       server_url="http://my-seq-server:5341/",
       api_key="My API Key",
       level=logging.INFO,
       batch_size=10,
       auto_flush_timeout=10,  # seconds
-      override_root_logger=True,
-      json_encoder_class=json.encoder.JSONEncoder,  # Optional; only specify this if you want to use a custom JSON encoder
-      support_extra_properties=True # Optional; only specify this if you want to pass additional log record properties via the "extra" argument.
+      override_root_logger=True, # Optional; 
+      json_encoder_class=json.encoder.JSONEncoder,  # Optional; specify this if you want to use a custom JSON encoder
+      support_extra_properties=True # Optional; specify this if you want to pass additional log record properties via the "extra" argument.
+      support_stack_info=True # Optional; specify this if you want to include stack info in your logs (i.e. including a stack trace in a warning log)
    )
+   my_seq_logger.info("This is an info log.")
 
-For the best experience, use ``{x}``-style named format arguments (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
+
+``{x}``-style named format arguments are supported (passing those format arguments as keyword arguments to the log functions ``info``, ``warning``, ``error``, ``critical``, etc).
 Using unnamed "holes" (i.e. ``{}``) is not currently supported.
 
 For example:
 
 .. code-block:: python
 
-   logging.info("Hello, {name}!", name="World")
+   logging.info("Hello, {foo}!", args={foo:"World"})
 
 If you specify ordinal arguments, the log message is interpreted as a "%s"-style format string.
 The ordinal format arguments are stored in the log entry properties using the 0-based ordinal index as the property name.
