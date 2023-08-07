@@ -76,11 +76,10 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
 
 
 def log_to_seq(server_url, api_key=None, level=logging.WARNING,
-               batch_size=10, auto_flush_timeout=None,
+               name='DefaultSeqLogger', batch_size=10, auto_flush_timeout=None,
                additional_handlers=None, override_root_logger=False,
                json_encoder_class=None, support_extra_properties=False,
-               support_stack_info=False,
-               **kwargs):
+               support_stack_info=False,  handler=None, formatter=None):
     """
     Configure the logging system to send log entries to Seq.
 
@@ -89,19 +88,28 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :param server_url: The Seq server URL.
     :param api_key: The Seq API key (optional).
     :param level: The minimum level at which to log.
+    :param name: A name for the logger.
+        if not specified, the name 'DefaultSeqLogger' will be used.
     :param batch_size: The number of log entries to collect before publishing to Seq.
     :param auto_flush_timeout: If specified, the time (in seconds) before the current batch is automatically flushed.
     :param additional_handlers: Additional `LogHandler`s (if any).
     :param override_root_logger: Override the root logger, too?
                                  Note - this might cause problems if third-party components try to be clever
                                  when using the logging.XXX functions.
-    :param json_encoder_class: The custom JSONEncoder class (if any) to use. It not specified, the default JSONEncoder will be used.
+    :param json_encoder_class: The custom JSONEncoder class (if any) to use.
+        If not specified, the default JSONEncoder will be used.
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
     :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
     :type support_stack_info: bool
-    :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
-    :rtype: SeqLogHandler
+    :param handler: a custom/user-provided handler class for the StructuredLogger class
+        If not specified, SeqLogHandler will be initialized and used.
+    :type logging.Handler(class)
+    :param formatter: a custom/user-provided formatter class for the SeqLogHandler() class.
+        If not specified, `logging.Formatter(class)` will be initialized and used with a default format an style.
+    :type: logging.Formatter(class)
+    :return: The `StructuredLogger` so that the user can immediately start logging either with the return class, or with the `logging.log()` functions.
+    :rtype: StructuredLogger(class)
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
@@ -129,14 +137,19 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
 
     return log_handlers[0]
 
-
-def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, support_stack_info=False, **kwargs):
+def log_to_console(level=logging.WARNING, name='DefaultSeqConsoleLogger',
+                   override_root_logger=False, support_extra_properties=False,
+                   support_stack_info=False,
+                   handler=ConsoleStructuredLogHandler(), formatter=None,
+):
     """
     Configure the logging system to send log entries to the console.
 
     Note that the root logger will not log to Seq by default.
 
     :param level: The minimum level at which to log.
+    :param name: a name for the console logger.
+        If not specified, the name 'DefaultSeqConsoleLogger' will be used.
     :param override_root_logger: Override the root logger, too?
                                  Note - this might cause problems if third-party components try to be clever
                                  when using the logging.XXX functions.
@@ -144,6 +157,10 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
     :type support_extra_properties: bool
     :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
     :type support_stack_info: bool
+    :param handler: the Handler class to use for the console logger.
+        if not specified, `ConsoleStructuredLogHandler(class)` will be used.
+    :param formatter: a Formatter class for the Handler to format logs with.
+        if not specified, `logging.Formatter(class)` will be used with a default format and style.
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
