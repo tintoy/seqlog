@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.28 (2023-08-13)
+-------------------
+
+* Improve behaviour of `best_effort_json_encode` so it does not convert JSON to a string (tintoy/seqlog#59).
+
 0.3.27 (2023-08-03)
 -------------------
 
