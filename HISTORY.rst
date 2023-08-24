@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.29 (2023-08-24)
+-------------------
+
+* Fix type-hint on `set_global_log_properties` (tintoy/seqlog#60).
+
 0.3.28 (2023-08-13)
 -------------------
 
