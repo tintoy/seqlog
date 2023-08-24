@@ -66,7 +66,7 @@ def set_global_log_properties(**properties):
     Configure the properties to be added to all structured log entries.
 
     :param properties: Keyword arguments representing the properties.
-    :type properties: dict
+    :type properties: str
     """
 
     global _global_log_props, _global_log_props_is_raw_dict
