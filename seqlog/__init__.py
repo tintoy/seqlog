@@ -19,7 +19,7 @@ __email__ = 'tintoy@tintoy.io'
 __version__ = '0.3.29'
 
 
-def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False):
+def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False):
     """
     Configure Seq logging using YAML-format configuration file.
 
@@ -33,10 +33,13 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     :type support_extra_properties: bool
     :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
     :type support_stack_info: bool
+    :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
+    :type ignore_seq_submission_errors: bool
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
+    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
 
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
@@ -44,7 +47,7 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     configure_from_dict(config, override_root_logger)
 
 
-def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False, support_stack_info=False):
+def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False):
     """
     Configure Seq logging using a dictionary.
 
@@ -60,10 +63,13 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
     :type support_extra_properties: bool
     :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
     :type support_stack_info: bool
+    :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
+    :type ignore_seq_submission_errors: bool
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
+    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
 
     if override_root_logger:
         _override_root_logger()
@@ -80,6 +86,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                additional_handlers=None, override_root_logger=False,
                json_encoder_class=None, support_extra_properties=False,
                support_stack_info=False,
+               ignore_seq_submission_errors=False,
                **kwargs):
     """
     Configure the logging system to send log entries to Seq.
@@ -100,12 +107,15 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :type support_extra_properties: bool
     :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
     :type support_stack_info: bool
+    :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
+    :type ignore_seq_submission_errors: bool
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
+    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
 
     logging.setLoggerClass(StructuredLogger)
 
