@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.30 (2023-10-28)
+-------------------
+
+* Hide errors caused by unavailable Seq server (tintoy/seqlog#61).
+
 0.3.29 (2023-08-24)
 -------------------
 
