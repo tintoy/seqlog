@@ -23,10 +23,14 @@ class FeatureFlag(Enum):
     STACK_INFO = 2,
     "Support attaching of stack-trace information (if available) to log records?"
 
+    IGNORE_SEQ_SUBMISSION_ERRORS = 3,
+    "Ignore errors encountered while sending log records to Seq?"
+
 
 _features = {
     FeatureFlag.EXTRA_PROPERTIES: False,
     FeatureFlag.STACK_INFO: False,
+    FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS: False,
 }
 "Configured feature flags"
 
