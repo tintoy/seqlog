@@ -69,39 +69,45 @@ class TestStructuredLogger(object):
         logger, handler = create_logger()
 
         logger.info(
-            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}",
+            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}, Arg5 = {Argument5}",
             Argument1="Foo",
             Argument2="Bar",
             Argument3=b"Baz",
-            Argument4=7
+            Argument4=7,
+            Argument5={"Key1": 1, "Array": [{"InArrayNum1": 111, "InArrayStr1": "str1"}]}
         )
 
         record = handler.pop_record()
-        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = b'Baz', Arg4 = 7")
+        expect.log_message(record, "Arg1 = 'Foo', Arg2 = 'Bar', Arg3 = b'Baz', Arg4 = 7, "
+                                   "Arg5 = {'Key1': 1, 'Array': [{'InArrayNum1': 111, 'InArrayStr1': 'str1'}]}")
 
     def test_named_arguments_template(self):
         logger, handler = create_logger()
 
         logger.info(
-            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}",
+            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}, Arg5 = {Argument5}",
             Argument1="Foo",
             Argument2="Bar",
             Argument3=b"Baz",
-            Argument4=7
+            Argument4=7,
+            Argument5={"Key1": 1, "Array": [{"InArrayNum1": 111, "InArrayStr1": "str1"}]}
         )
 
         record = handler.pop_record()
-        expect.log_template(record, "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}")
+        expect.log_template(record,
+                            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, "
+                            "Arg4 = {Argument4}, Arg5 = {Argument5}")
 
     def test_named_arguments_level(self):
         logger, handler = create_logger(logging.WARNING)
 
         logger.warning(
-            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}",
+            "Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}, Arg5 = {Argument5}",
             Argument1="Foo",
             Argument2="Bar",
             Argument3=b"Baz",
-            Argument4=7
+            Argument4=7,
+            Argument5={"Key1": 1, "Array": [{"InArrayNum1": 111, "InArrayStr1": "str1"}]}
         )
 
         record = handler.pop_record()
@@ -110,16 +116,18 @@ class TestStructuredLogger(object):
     def test_named_arguments_args(self):
         logger, handler = create_logger()
 
-        logger.info(
-            "Arg1 = 'Arg1 = {Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, Arg4 = {Argument4}",
-            Argument1="Foo",
-            Argument2="Bar",
-            Argument3=b"Baz",
-            Argument4=7
-        )
+        logger.info("Arg1 = '{Argument1}', Arg2 = '{Argument2}', Arg3 = {Argument3}, "
+                    "Arg4 = {Argument4}, Arg5 = {Argument5}",
+                    Argument1="Foo",
+                    Argument2="Bar",
+                    Argument3=b"Baz",
+                    Argument4=7,
+                    Argument5={"Key1": 1, "Array": [{"InArrayNum1": 111, "InArrayStr1": "str1"}]})
 
         record = handler.pop_record()
-        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=b"Baz", Argument4=7, LoggerName="test")
+        expect.log_named_args(record, Argument1="Foo", Argument2="Bar", Argument3=b"Baz", Argument4=7,
+                              Argument5={"Key1": 1, "Array": [{"InArrayNum1": 111, "InArrayStr1": "str1"}]},
+                              LoggerName="test")
 
 
 def create_logger(level=logging.INFO):

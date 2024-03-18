@@ -66,7 +66,7 @@ def set_global_log_properties(**properties):
     Configure the properties to be added to all structured log entries.
 
     :param properties: Keyword arguments representing the properties.
-    :type properties: dict
+    :type properties: str
     """
 
     global _global_log_props, _global_log_props_is_raw_dict
@@ -152,7 +152,7 @@ class StructuredLogRecord(logging.LogRecord):
         # See https://docs.python.org/3/library/logging.html#logging.LogRecord.getMessage for details
         if not isinstance(self.msg, str):
             self.msg = str(self.msg)
-        
+
         if self.args:
             return self.msg % self.args
         elif self.log_props:
@@ -326,7 +326,7 @@ def best_effort_json_encode(arg):
         return arg
 
     try:
-        return json.dumps(arg)
+        json.dumps(arg)
     except TypeError:
         try:
             return str(arg)
@@ -337,6 +337,8 @@ def best_effort_json_encode(arg):
                 return '<type %s>' % (type(arg), )
     except ReferenceError:
         return '<gone weak reference>'
+    else:
+        return arg
 
 
 class SeqLogHandler(logging.Handler):
@@ -359,6 +361,7 @@ class SeqLogHandler(logging.Handler):
         super().__init__()
 
         self._support_stack_info = is_feature_enabled(FeatureFlag.STACK_INFO)
+        self._ignore_seq_submission_errors = is_feature_enabled(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS)
 
         self.server_url = server_url
         if not self.server_url.endswith("/"):
@@ -451,16 +454,17 @@ class SeqLogHandler(logging.Handler):
             )
             response.raise_for_status()
         except requests.RequestException as requestFailed:
-            # Only notify for the first record in the batch, or we'll be generating too much noise.
-            self.handleError(batch[0])
+            if not self._ignore_seq_submission_errors:
+                # Only notify for the first record in the batch, or we'll be generating too much noise.
+                self.handleError(batch[0])
 
-            # Attempt to log error response
-            if not requestFailed.response:
-                _log_logger_error('response from Seq was unavailable.', requestFailed)
-            elif not requestFailed.response.text:
-                _log_logger_error('response body from Seq was empty.', requestFailed)
-            else:
-                _log_logger_error('response body from Seq:\n\n{0}'.format(requestFailed.response.text), requestFailed)
+                # Attempt to log error response
+                if not requestFailed.response:
+                    _log_logger_error('response from Seq was unavailable.', requestFailed)
+                elif not requestFailed.response.text:
+                    _log_logger_error('response body from Seq was empty.', requestFailed)
+                else:
+                    _log_logger_error('response body from Seq:\n\n{0}'.format(requestFailed.response.text), requestFailed)
         finally:
             self.release()
 
@@ -498,10 +502,9 @@ class SeqLogHandler(logging.Handler):
             "MessageTemplate": record.getMessage(),
             "Properties": get_global_log_properties(logger_name)
         }
-        if hasattr(record, 'args'):
-            # Standard (unnamed) format arguments (use 0-base index as property name).
-            log_props_shim = get_global_log_properties(record.name)
 
+        if hasattr(record, 'args'):
+            # Standard (unnamed) format arguments (use 0-based index as property name).
             for (arg_index, arg) in enumerate(record.args or []):
                 event_data["Properties"][str(arg_index)] = arg
 

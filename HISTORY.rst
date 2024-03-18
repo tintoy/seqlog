@@ -2,6 +2,21 @@
 History
 =======
 
+0.3.30 (2023-10-28)
+-------------------
+
+* Hide errors caused by unavailable Seq server (tintoy/seqlog#61).
+
+0.3.29 (2023-08-24)
+-------------------
+
+* Fix type-hint on `set_global_log_properties` (tintoy/seqlog#60).
+
+0.3.28 (2023-08-13)
+-------------------
+
+* Improve behaviour of `best_effort_json_encode` so it does not convert JSON to a string (tintoy/seqlog#59).
+
 0.3.27 (2023-08-03)
 -------------------
 
