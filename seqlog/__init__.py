@@ -85,7 +85,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                name='DefaultSeqLogger', batch_size=10, auto_flush_timeout=None,
                additional_handlers=None, override_root_logger=False,
                json_encoder_class=None, support_extra_properties=False,
-               support_stack_info=False,
+               support_stack_info=False,  handler=None, formatter=None,
                ignore_seq_submission_errors=False,
                **kwargs):
     """
