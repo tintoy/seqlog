@@ -116,7 +116,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
         If not specified, SeqLogHandler will be initialized and used.
     :type logging.Handler(class)
     :param formatter: a custom/user-provided formatter class for the SeqLogHandler() class.
-        If not specified, `logging.Formatter(class)` will be initialized and used with a default format an style.
+        If not specified, `logging.Formatter(class)` will be initialized and used with a default format and style.
     :type: logging.Formatter(class)
     :return: The `StructuredLogger` so that the user can immediately start logging either with the return class, or with the `logging.log()` functions.
     :rtype: StructuredLogger(class)
