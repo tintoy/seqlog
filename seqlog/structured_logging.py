@@ -216,7 +216,7 @@ class StructuredLogger(logging.Logger):
         extra = extra or {}
         extra['log_props'] = log_props
 
-        super()._log(level, msg, args, exc_info, extra, stack_info)
+        super()._log(level, msg, args, exc_info, extra, stack_info, stacklevel=2)
 
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         """
