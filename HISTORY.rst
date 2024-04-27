@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.31 (2024-04-27)
+-------------------
+
+* Fix incorrect stack-trace in logged exceptions (tintoy/seqlog#69).
+
 0.3.30 (2023-10-28)
 -------------------
 
