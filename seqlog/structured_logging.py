@@ -179,7 +179,9 @@ class StructuredLogger(logging.Logger):
 
         super().__init__(name, level)
 
-        self._support_extra_properties = is_feature_enabled(FeatureFlag.EXTRA_PROPERTIES)
+    @property
+    def _support_extra_properties(self):
+        return is_feature_enabled(FeatureFlag.EXTRA_PROPERTIES)
 
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, **kwargs):
         """
@@ -360,9 +362,6 @@ class SeqLogHandler(logging.Handler):
 
         super().__init__()
 
-        self._support_stack_info = is_feature_enabled(FeatureFlag.STACK_INFO)
-        self._ignore_seq_submission_errors = is_feature_enabled(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS)
-
         self.server_url = server_url
         if not self.server_url.endswith("/"):
             self.server_url += "/"
@@ -386,6 +385,14 @@ class SeqLogHandler(logging.Handler):
             auto_flush_timeout=auto_flush_timeout
         )
         self.consumer.start()
+
+    @property
+    def _support_stack_info(self):
+        return is_feature_enabled(FeatureFlag.STACK_INFO)
+
+    @property
+    def _ignore_seq_submission_errors(self):
+        return is_feature_enabled(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS)
 
     def flush(self):
         try:
@@ -420,14 +427,13 @@ class SeqLogHandler(logging.Handler):
         finally:
             super().close()
 
-    def publish_log_batch(self, batch):     # type: (tp.Iterable[StructuredLogRecord]) -> None
+    def publish_log_batch(self, batch):     # type: (tp.List[StructuredLogRecord]) -> None
         """
         Publish a batch of log records.
 
         :param batch: A list representing the batch.
         """
-
-        if len(batch) == 0:
+        if not batch:
             return
 
         processed_records = []
@@ -529,7 +535,7 @@ class SeqLogHandler(logging.Handler):
         elif isinstance(record.exc_info, tuple):
             # Exception info is present
             if record.exc_info[0] is None and self._support_stack_info and record.stack_info:
-                event_data["Exception"] = "{0}--NoExeption\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
+                event_data["Exception"] = "{0}--NoException\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
             else:
                 event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
         elif record.exc_info:

@@ -211,3 +211,23 @@ which is the requests exception instance that was the reason for the fail.
 .. note:: This callable will be called only for I/O errors, errors stemming
           from seqlog not being able to convert your records into JSON won't
           show up here!
+
+Passing in exceptions
+---------------------
+
+There's a couple of ways you can pass in exception information. The only field sent to Seq will be called Exception and it
+may come from a couple of places, in order:
+
+1. A previously rendered exception was cached
+
+2. If FeatureFlag.STACK_INFO is enabled, :code:`stack_info` is set and :code:`exc_info` is not set, it
+   will be taken from :code:`stack_info`
+
+3. If :code:`exc_info` is a tuple then
+    a. If it's first element is None, FeatureFlag.STACK_INFO is enabled and :code:`record.stack_info` is available,
+       :code:`stack_info` will be used to construct the message
+    b. Else formatted :code:`exc_info` will be used
+
+4. If only :code:`exc_info` is given, and it's an Exception, then the stack trace will be attached.
+
+So if you provide both :code:`exc_info` and :code:`stack_info` the code will behave in a way that's hard to put into words.
