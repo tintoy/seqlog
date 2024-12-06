@@ -2,6 +2,12 @@
 History
 =======
 
+Current
+-------
+
+* You can enable and disable all of the feature flags at runtime
+
+
 0.3.31 (2024-04-27)
 -------------------
 

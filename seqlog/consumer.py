@@ -58,10 +58,10 @@ class QueueConsumer:
 
             self._cancel_auto_flush()
 
-            current_batch = self.current_batch[:]
+            current_batch = [*self.current_batch]
             self.current_batch.clear()
 
-            if len(current_batch) == 0:
+            if not current_batch:
                 return
 
             self.callback(current_batch)
