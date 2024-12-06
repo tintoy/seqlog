@@ -220,7 +220,7 @@ may come from a couple of places, in order:
 
 1. A previously rendered exception was cached
 
-2. If FeatureFlag.STACK_INFO is enabled, :code:`record` is set and :code:`record` is not set, it
+2. If FeatureFlag.STACK_INFO is enabled, :code:`stack_info` is set and :code:`exc_info` is not set, it
    will be taken from :code:`stack_info`
 
 3. If :code:`exc_info` is a tuple then
@@ -230,4 +230,4 @@ may come from a couple of places, in order:
 
 4. If only :code:`exc_info` is given, and it's an Exception, then the stack trace will be attached.
 
-So if you provide both :code:`exc_info` and :code:`stack_info` the code will behave in a weird way.
+So if you provide both :code:`exc_info` and :code:`stack_info` the code will behave in a way that's hard to put into words.
