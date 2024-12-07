@@ -8,31 +8,21 @@ class FeatureFlag(Enum):
     Well-known feature flags.
     """
 
-    def __new__(cls, value, doc=None):
-        self = object.__new__(cls)  # calling super().__new__(value) here would fail
-        self._value_ = value
+    EXTRA_PROPERTIES = 1  #: Support passing of additional properties to log via the `extra` argument?
 
-        if doc is not None:
-            self.__doc__ = doc
+    STACK_INFO = 2  #: Support attaching of stack-trace information (if available) to log records?
 
-        return self
+    IGNORE_SEQ_SUBMISSION_ERRORS = 3   #: Ignore errors encountered while sending log records to Seq?
 
-    EXTRA_PROPERTIES = 1,
-    "Support passing of additional properties to log via the `extra` argument?"
-
-    STACK_INFO = 2,
-    "Support attaching of stack-trace information (if available) to log records?"
-
-    IGNORE_SEQ_SUBMISSION_ERRORS = 3,
-    "Ignore errors encountered while sending log records to Seq?"
+    USE_CLEF = 4    #: Use more modern API to submit log entries
 
 
 _features = {
     FeatureFlag.EXTRA_PROPERTIES: False,
     FeatureFlag.STACK_INFO: False,
     FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS: False,
+    FeatureFlag.USE_CLEF: False
 }
-"Configured feature flags"
 
 
 def is_feature_enabled(feature: FeatureFlag):

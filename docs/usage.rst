@@ -38,6 +38,10 @@ The ordinal format arguments are stored in the log entry properties using the 0-
 
 Note that mixing named and ordinal arguments is not currently supported.
 
+The formal definition of the configure function is as follows:
+
+.. autofunction:: seqlog.log_to_seq
+
 Configure logging from a file
 -----------------------------
 
@@ -190,6 +194,14 @@ with no arguments right before logging:
 
 If the callable returns None, it won't be added.
 
+Note that some properties get different treatment if the CLEF mode is enabled.
+
+Note that there is a short list of these, these won't be attached to Properties. They will get removed from there and
+attached according to the `CLEF<https://clef-json.org/>`_ format:
+
+* ``span_id`` - this will get removed and be replaced with ``@sp``
+* ``trace_id`` - this will get removed and be replaced with ``@tr``
+
 Callback on log submission failure
 ----------------------------------
 
@@ -229,5 +241,7 @@ may come from a couple of places, in order:
     b. Else formatted :code:`exc_info` will be used
 
 4. If only :code:`exc_info` is given, and it's an Exception, then the stack trace will be attached.
+
+5. If :code:`exc_info` is a string, it will be attached. This is functionally the same thing as (2).
 
 So if you provide both :code:`exc_info` and :code:`stack_info` the code will behave in a way that's hard to put into words.
