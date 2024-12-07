@@ -48,16 +48,18 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
-    configure_from_dict(config, override_root_logger, True, support_extra_properties, support_stack_info,
-                        ignore_seq_submission_errors, use_clef)
+    configure_from_dict(config, override_root_logger, True)
 
 
-def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False,
-                        use_clef=False):
+def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=None,
+                        support_stack_info=None, ignore_seq_submission_errors=None,
+                        use_clef=None):
     """
     Configure Seq logging using a dictionary.
 
     Uses `logging.config.dictConfig()`.
+
+    Note that if you provide None to any of the default arguments, it just won't get changed (ie. it will stay the same).
 
     :param config: A dict containing the configuration.
     :type config: dict

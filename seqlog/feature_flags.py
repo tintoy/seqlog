@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import typing as tp
 from enum import Enum
 
 
@@ -60,14 +60,14 @@ def disable_feature(feature: FeatureFlag):
     configure_feature(feature, False)
 
 
-def configure_feature(feature: FeatureFlag, enable: bool):
+def configure_feature(feature: FeatureFlag, enable: tp.Optional[bool]):
     """
     Enable or disable a feature.
 
-    :param feature: A `FeatureFlag` value representing the feature to configure.
+    :param feature: A `FeatureFlag` value representing the feature to configure. If you pass None, it won't get changed.
     :type feature: FeatureFlag
     :param enable: `True`, to enable the feature; `False` to disable it.
-    :type enable: bool
     """
-
+    if enable is None:
+        return
     _features[feature] = enable
