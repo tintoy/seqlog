@@ -362,13 +362,11 @@ class SeqLogHandler(logging.Handler):
 
         super().__init__()
 
-        self.server_url = server_url
-        if not self.server_url.endswith("/"):
-            self.server_url += "/"
-        self.server_url += "api/events/raw"
+        self.base_server_url = server_url
+        if not self.base_server_url.endswith("/"):
+            self.base_server_url += "/"
 
         self.session = requests.Session()
-        self.session.headers["Content-Type"] = "application/json"
 
         if api_key:
             self.session.headers["X-Seq-ApiKey"] = api_key
@@ -385,6 +383,16 @@ class SeqLogHandler(logging.Handler):
             auto_flush_timeout=auto_flush_timeout
         )
         self.consumer.start()
+
+    @property
+    def server_url(self):
+        if self._use_clef:
+            return self.base_server_url + 'ingest/clef'
+        return self.base_server_url + 'api/events/raw'
+
+    @property
+    def _use_clef(self):
+        return is_feature_enabled(FeatureFlag.USE_CLEF)
 
     @property
     def _support_stack_info(self):
@@ -448,7 +456,10 @@ class SeqLogHandler(logging.Handler):
                 continue
             processed_records.append(resp)
 
-        request_body_json = '{"Events": [%s]}' % (','.join(processed_records), )
+        if self._use_clef:
+            request_body_json = '\r\n'.join(processed_records)
+        else:
+            request_body_json = '{"Events": [%s]}' % (','.join(processed_records), )
 
         self.acquire()
         response = None
@@ -456,6 +467,7 @@ class SeqLogHandler(logging.Handler):
             response = self.session.post(
                 self.server_url,
                 data=request_body_json,
+                headers={'Content-Type': "application/vnd.serilog.clef" if self._use_clef else 'application/json'},
                 stream=True  # prevent '362'
             )
             response.raise_for_status()
@@ -492,8 +504,14 @@ class SeqLogHandler(logging.Handler):
             _callback_on_failure(exception)
 
     def _build_event_data(self, record):
+        if self._use_clef:
+            return self._build_event_data_clef(record)
+        else:
+            return self._build_event_data_ingest(record)
+
+    def _build_event_data_ingest(self, record):
         """
-        Build an event data dictionary from the specified log record for submission to Seq.
+        Build an event data dictionary from the specified log record for submission to Seq in the api/events format
 
         :param record: The LogRecord.
         :type record: StructuredLogRecord
@@ -502,6 +520,7 @@ class SeqLogHandler(logging.Handler):
         """
 
         logger_name = record.name if record.name else None
+
         event_data = {
             "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
@@ -538,6 +557,8 @@ class SeqLogHandler(logging.Handler):
                 event_data["Exception"] = "{0}--NoException\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
             else:
                 event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
+        elif isinstance(record.exc_info, str):
+            event_data["Exception"] = record.exc_info
         elif record.exc_info:
             # Exception info needs to be captured
             exc_info = sys.exc_info()
@@ -546,13 +567,77 @@ class SeqLogHandler(logging.Handler):
 
         return event_data
 
+    def _build_event_data_clef(self, record):
+        """
+        Build an event data dictionary from the specified log record for submission to Seq in the CLEF format
 
-def _get_local_timestamp(record):
+        :param record: The LogRecord.
+        :type record: StructuredLogRecord
+        :return: A dictionary containing event data representing the log record.
+        :rtype: dict
+        """
+
+        logger_name = record.name if record.name else None
+
+        event_data = {
+            "@t": _get_local_timestamp(record, True),
+            "@l": logging.getLevelName(record.levelno),
+            "@mt": record.getMessage(),
+        }
+        props = {}
+        for key, value in get_global_log_properties(logger_name).items():
+            if key == 'trace_id':
+                props['@tr'] = value
+            elif key == 'span_id':
+                props['@sp'] = value
+            else:
+                props[key] = value
+        event_data.update(**props)
+
+        if hasattr(record, 'args'):
+            # Standard (unnamed) format arguments (use 0-based index as property name).
+            event_data["@r"] = [str(arg) for arg in record.args]
+
+        if hasattr(record, 'log_props'):
+            # assume record is StructuredLogRecord
+            event_data.update(**record.log_props)
+
+        for log_prop_name in event_data.keys():
+            # bytes is not serialisable to JSON; encode appropriately.
+            log_prop = _encode_bytes_if_required(event_data[log_prop_name])
+            log_prop = best_effort_json_encode(log_prop)
+            event_data[log_prop_name] = log_prop
+
+        if record.exc_text:
+            # Rendered exception has already been cached
+            event_data["@x"] = record.exc_text
+        elif self._support_stack_info and record.stack_info and not record.exc_info:
+            # Feature flag is set: fall back to stack_info (sinfo) if exc_info is not present
+            event_data["@x"] = record.stack_info
+        elif isinstance(record.exc_info, tuple):
+            # Exception info is present
+            if record.exc_info[0] is None and self._support_stack_info and record.stack_info:
+                event_data["@x"] = "{0}--NoException\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
+            else:
+                event_data["@x"] = record.exc_text = self.formatter.formatException(record.exc_info)
+        elif isinstance(record.exc_info, str):
+            event_data["@x"] = record.exc_info
+        elif record.exc_info:
+            # Exception info needs to be captured
+            exc_info = sys.exc_info()
+            if exc_info and exc_info[0] is not None:
+                event_data["@x"] = record.exc_text = self.formatter.formatException(record.exc_info)
+
+        return event_data
+
+
+def _get_local_timestamp(record, use_clef=False):
     """
     Get the record's UTC timestamp as an ISO-formatted date / time string.
 
     :param record: The LogRecord.
     :type record: StructuredLogRecord
+    :param use_clef: CLEF requires the time separator to be true ISO8601
     :return: The ISO-formatted date / time string.
     :rtype: str
     """
@@ -562,7 +647,7 @@ def _get_local_timestamp(record):
         tz=tzlocal()
     )
 
-    return timestamp.isoformat(sep=' ')
+    return timestamp.isoformat(sep='T' if use_clef else ' ')
 
 
 def _ensure_class(class_or_class_name, compatible_class=None):
