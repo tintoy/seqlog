@@ -8,6 +8,7 @@ History
 
 * made the configuration a little bit more Pythonic
 * deprecated `configure_from_dict` and `configure_from_file`
+* you can choose whether ConsoleStructuredLogHandler will log to stdout or to stderr.
 
 0.4.0  - (2024-12-8)
 --------------------
