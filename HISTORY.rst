@@ -2,8 +2,15 @@
 History
 =======
 
-Current (0.4.0)  - (unreleased yet)
------------------------------------
+
+0.5.0 - (2024-12-13)
+--------------------
+
+* made the configuration a little bit more Pythonic
+* deprecated `configure_from_dict` and `configure_from_file`
+
+0.4.0  - (2024-12-8)
+--------------------
 
 * You can enable and disable all of the feature flags at runtime
 * Added support for the `CLEF submission format <https://docs.datalust.co/docs/posting-raw-events>`_.

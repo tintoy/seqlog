@@ -2,6 +2,8 @@
 Usage
 =====
 
+Recommended way is to use logging.config.dictConfig().
+
 Configure logging programmatically
 ----------------------------------
 
@@ -45,6 +47,9 @@ The formal definition of the configure function is as follows:
 Configure logging from a file
 -----------------------------
 
+.. deprecated:: 0.5.0
+    Use logging.config.dictConfig() directly
+
 Seqlog can also use a YAML-format file to describe the desired logging configuration. This file has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
 
 First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
@@ -78,6 +83,7 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
       console:
         class: seqlog.structured_logging.ConsoleStructuredLogHandler
         formatter: seq
+        override_existing_logger: True
 
     # Log to Seq
       seq:
@@ -112,6 +118,9 @@ Then, call ``seqlog.configure_from_file()``:
 Configuring logging from a dictionary
 -------------------------------------
 
+.. deprecated:: 0.5.0
+    Use logging.config.dictConfig() directly
+
 Seqlog can also use a dictionary to describe the desired logging configuration.
 This dictionary has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
 
@@ -130,6 +139,29 @@ This dictionary has the schema specified in Python's `logging.config <https://do
     # Use another logger
     another_logger = logging.getLogger('another_logger')
     another_logger.info('This is another logger.')
+
+Note that you can pass flags that were previously given to :func:`seqlog.configure_from_dict` directly in the dictionary, eg.
+
+
+.. code-block:: python
+
+    a['handlers']['console'] = {
+        'class': 'seqlog.structured_logging.ConsoleStructuredLogHandler',
+        'formatter': 'standard'
+        'override_root_logger': True
+        'use_structured_logging': True,
+        'use_clef': True        
+    }
+    logging.config.dictConfig(a)
+
+Basically all of the arguments in
+
+.. autoclass:: seqlog.structured_logging.BaseStructuredLogHandler
+
+can be put there.
+
+Note that only first arguments that were previously passed globally will be set. Argument configured once in one logger
+won't pass to another.
 
 Batching and auto-flush
 -----------------------
@@ -197,7 +229,7 @@ If the callable returns None, it won't be added.
 Note that some properties get different treatment if the CLEF mode is enabled.
 
 Note that there is a short list of these, these won't be attached to Properties. They will get removed from there and
-attached according to the `CLEF<https://clef-json.org/>`_ format:
+attached according to the `CLEF <https://clef-json.org/>`_ format:
 
 * ``span_id`` - this will get removed and be replaced with ``@sp``
 * ``trace_id`` - this will get removed and be replaced with ``@tr``
