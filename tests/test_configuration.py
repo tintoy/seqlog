@@ -7,13 +7,16 @@ test_seqlog
 
 Tests for `seqlog.config_from_*` module.
 """
+import logging.config
 import os
 
 import yaml
 
-from seqlog import configure_from_file, configure_from_dict
+from tests.test_structured_logger import create_logger
 
-CFG_CONTENT = """# This is the Python logging schema version (currently, only the value 1 is supported here).
+CFG_CONTENT = """
+# This is the Python logging schema version (currently, only the value 1 is supported here).
+---
 version: 1
 
 # Configure logging from scratch.
@@ -24,15 +27,12 @@ root:
   level: 'DEBUG'
   handlers:
     - console
-    - seq
 handlers:
   console:
     class: seqlog.structured_logging.ConsoleStructuredLogHandler
     formatter: standard
-  seq:
-    class: seqlog.structured_logging.SeqLogHandler
-    formatter: standard
-    server_url: 'http://localhost'
+    override_root_logger: True
+    use_structured_logging: True
 formatters:
   standard:
     format: '[%(levelname)s] %(asctime)s %(name)s: %(message)s'
@@ -41,13 +41,16 @@ formatters:
 
 class TestConfiguration(object):
     def test_valid_config(self):
-        try:
-            with open('test', 'w', encoding='utf-8') as w_out:
-                w_out.write(CFG_CONTENT)
-            configure_from_file('test')
 
-            with open('test', 'r', encoding='utf-8') as r_in:
+        try:
+            with open('test.yaml', 'w', encoding='utf-8') as w_out:
+                w_out.write(CFG_CONTENT)
+
+            with open('test.yaml', 'r', encoding='utf-8') as r_in:
                 dct = yaml.load(r_in, Loader=yaml.Loader)
-                configure_from_dict(dct)
+                logging.config.dictConfig(dct)
         finally:
-            os.unlink('test')
+            os.unlink('test.yaml')
+        logger, handler = create_logger()
+        logger.warning('This is a {message}', message='message')
+        assert handler.records[0].getMessage() == 'This is a message'
