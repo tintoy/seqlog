@@ -3,6 +3,8 @@
 import logging
 import logging.config
 import typing
+import warnings
+
 import yaml
 
 from seqlog.feature_flags import FeatureFlag, configure_feature
@@ -16,15 +18,12 @@ from seqlog.structured_logging import set_callback_on_failure as _set_callback_o
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.5.0a1'
+__version__ = '0.5.0'
 
 
 def configure_from_file(file_name):
     """
     Configure Seq logging using YAML-format configuration file.
-
-    .. deprecated: 0.5.0
-        Use logging.config.fileConfig(). Also, let it be known that Python uses different format natively (your file cannot be YAML)
 
     Uses `logging.config.dictConfig()`.
     """
@@ -32,7 +31,7 @@ def configure_from_file(file_name):
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
-    configure_from_dict(config)
+    logging.config.dictConfig(config)
 
 
 def configure_from_dict(config):
@@ -49,6 +48,7 @@ def configure_from_dict(config):
     :param config: A dict containing the configuration.
     :type config: dict
     """
+    warnings.warn('This is deprecated, use logging.config.dictConfig() directly', DeprecationWarning)
     logging.config.dictConfig(config)
 
 
