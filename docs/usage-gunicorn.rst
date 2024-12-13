@@ -2,6 +2,7 @@
 Usage (Gunicorn)
 ================
 
+
 Using seqlog with `Gunicorn <https://gunicorn.org/>` involves some additional configuration because of the way Gunicorn uses ``fork`` to create new worker processes.
 
 A custom ``JSONEncoder`` is also used to handle objects that are not `JSON serializable`.
@@ -118,6 +119,7 @@ A custom ``JSONEncoder`` is also used to handle objects that are not `JSON seria
     console:
       class: seqlog.structured_logging.ConsoleStructuredLogHandler
       formatter: standard
+      use_stdout: False
 
     seq:
       class: seqlog.structured_logging.SeqLogHandler
