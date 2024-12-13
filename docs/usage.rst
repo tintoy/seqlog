@@ -47,9 +47,6 @@ The formal definition of the configure function is as follows:
 Configure logging from a file
 -----------------------------
 
-.. deprecated:: 0.5.0
-    Use logging.config.dictConfig() directly
-
 Seqlog can also use a YAML-format file to describe the desired logging configuration. This file has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
 
 First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
@@ -142,6 +139,7 @@ This dictionary has the schema specified in Python's `logging.config <https://do
 
 Note that you can pass flags that were previously given to :func:`seqlog.configure_from_dict` directly in the dictionary, eg.
 
+.. autofunction:: seqlog.configure_from_dict
 
 .. code-block:: python
 
