@@ -2,6 +2,20 @@
 History
 =======
 
+Current (0.4.0)  - (unreleased yet)
+-----------------------------------
+
+* You can enable and disable all of the feature flags at runtime
+* Added support for the `CLEF submission format <https://docs.datalust.co/docs/posting-raw-events>`_.
+* Fixed a bug wherein configure_from_file would not propagate feature flags
+* You can pass bare strings in the exc_info field (although this serves the same purpose as enabling STACK_INFO and using that variable)
+* A bugfix wherein `configure_from_file` would not relay it's arguments to `configure_from_dict` in the correct order
+
+0.3.31 (2024-04-27)
+-------------------
+
+* Fix incorrect stack-trace in logged exceptions (tintoy/seqlog#69).
+
 0.3.30 (2023-10-28)
 -------------------
 

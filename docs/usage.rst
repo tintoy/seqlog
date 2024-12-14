@@ -38,6 +38,10 @@ The ordinal format arguments are stored in the log entry properties using the 0-
 
 Note that mixing named and ordinal arguments is not currently supported.
 
+The formal definition of the configure function is as follows:
+
+.. autofunction:: seqlog.log_to_seq
+
 Configure logging from a file
 -----------------------------
 
@@ -190,6 +194,14 @@ with no arguments right before logging:
 
 If the callable returns None, it won't be added.
 
+Note that some properties get different treatment if the CLEF mode is enabled.
+
+Note that there is a short list of these, these won't be attached to Properties. They will get removed from there and
+attached according to the `CLEF<https://clef-json.org/>`_ format:
+
+* ``span_id`` - this will get removed and be replaced with ``@sp``
+* ``trace_id`` - this will get removed and be replaced with ``@tr``
+
 Callback on log submission failure
 ----------------------------------
 
@@ -211,3 +223,25 @@ which is the requests exception instance that was the reason for the fail.
 .. note:: This callable will be called only for I/O errors, errors stemming
           from seqlog not being able to convert your records into JSON won't
           show up here!
+
+Passing in exceptions
+---------------------
+
+There's a couple of ways you can pass in exception information. The only field sent to Seq will be called Exception and it
+may come from a couple of places, in order:
+
+1. A previously rendered exception was cached
+
+2. If FeatureFlag.STACK_INFO is enabled, :code:`stack_info` is set and :code:`exc_info` is not set, it
+   will be taken from :code:`stack_info`
+
+3. If :code:`exc_info` is a tuple then
+    a. If it's first element is None, FeatureFlag.STACK_INFO is enabled and :code:`record.stack_info` is available,
+       :code:`stack_info` will be used to construct the message
+    b. Else formatted :code:`exc_info` will be used
+
+4. If only :code:`exc_info` is given, and it's an Exception, then the stack trace will be attached.
+
+5. If :code:`exc_info` is a string, it will be attached. This is functionally the same thing as (2).
+
+So if you provide both :code:`exc_info` and :code:`stack_info` the code will behave in a way that's hard to put into words.

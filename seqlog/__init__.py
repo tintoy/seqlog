@@ -16,10 +16,11 @@ from seqlog.structured_logging import set_callback_on_failure as _set_callback_o
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.3.30'
+__version__ = '0.4.0a1'
 
 
-def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False):
+def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False,
+                        use_clef=False):
     """
     Configure Seq logging using YAML-format configuration file.
 
@@ -35,23 +36,30 @@ def configure_from_file(file_name, override_root_logger=True, support_extra_prop
     :type support_stack_info: bool
     :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
     :type ignore_seq_submission_errors: bool
+    :param use_clef: use the newer submission format CLEF
+    :type use_clef: bool
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
     configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
+    configure_feature(FeatureFlag.USE_CLEF, use_clef)
 
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
-    configure_from_dict(config, override_root_logger)
+    configure_from_dict(config, override_root_logger, True)
 
 
-def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False):
+def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=None,
+                        support_stack_info=None, ignore_seq_submission_errors=None,
+                        use_clef=None):
     """
     Configure Seq logging using a dictionary.
 
     Uses `logging.config.dictConfig()`.
+
+    Note that if you provide None to any of the default arguments, it just won't get changed (ie. it will stay the same).
 
     :param config: A dict containing the configuration.
     :type config: dict
@@ -65,11 +73,14 @@ def configure_from_dict(config, override_root_logger=True, use_structured_logger
     :type support_stack_info: bool
     :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
     :type ignore_seq_submission_errors: bool
+    :param use_clef: use the newer submission format CLEF
+    :type use_clef: bool
     """
 
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
     configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
+    configure_feature(FeatureFlag.USE_CLEF, use_clef)
 
     if override_root_logger:
         _override_root_logger()
@@ -87,6 +98,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
                json_encoder_class=None, support_extra_properties=False,
                support_stack_info=False,
                ignore_seq_submission_errors=False,
+               use_clef=False,
                **kwargs):
     """
     Configure the logging system to send log entries to Seq.
@@ -109,6 +121,8 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :type support_stack_info: bool
     :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
     :type ignore_seq_submission_errors: bool
+    :param use_clef: use more modern format to send events to Seq
+    :type use_clef: bool
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
@@ -116,6 +130,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
     configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
     configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
+    configure_feature(FeatureFlag.USE_CLEF, use_clef)
 
     logging.setLoggerClass(StructuredLogger)
 

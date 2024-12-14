@@ -32,7 +32,7 @@ test_requirements = [
 
 setup(
     name='seqlog',
-    version='0.3.30',
+    version='0.5.0',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
     author="Adam Friedman",
@@ -55,7 +55,11 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     test_suite='tests',
     tests_require=test_requirements
 )
+
