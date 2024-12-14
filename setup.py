@@ -24,7 +24,7 @@ test_requirements = [
     'tox>=2.3.1',
     'coverage>=4.1',
     'Sphinx>=1.4.4',
-    'cryptography==41.0.4',
+    'cryptography==42.0.4',
     'PyYAML>=3.11',
     'pytest>=2.9.2',
     'httmock>=1.2.5'
@@ -32,7 +32,7 @@ test_requirements = [
 
 setup(
     name='seqlog',
-    version='0.4.0',
+    version='0.5.0',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
     author="Adam Friedman",
@@ -55,7 +55,11 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     test_suite='tests',
     tests_require=test_requirements
 )
+
