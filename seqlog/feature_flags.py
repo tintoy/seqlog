@@ -17,11 +17,12 @@ class FeatureFlag(Enum):
     USE_CLEF = 4    #: Use more modern API to submit log entries
 
 
+# Here None (despite for if purposes being False) carries additional meaning - that this entry was not yet configured
 _features = {
-    FeatureFlag.EXTRA_PROPERTIES: False,
-    FeatureFlag.STACK_INFO: False,
-    FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS: False,
-    FeatureFlag.USE_CLEF: False
+    FeatureFlag.EXTRA_PROPERTIES: None,
+    FeatureFlag.STACK_INFO: None,
+    FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS: None,
+    FeatureFlag.USE_CLEF: None
 }
 
 
@@ -60,14 +61,17 @@ def disable_feature(feature: FeatureFlag):
     configure_feature(feature, False)
 
 
-def configure_feature(feature: FeatureFlag, enable: tp.Optional[bool]):
+def configure_feature(feature: FeatureFlag, enable: tp.Optional[bool], if_not_yet_configured: bool = False):
     """
     Enable or disable a feature.
 
     :param feature: A `FeatureFlag` value representing the feature to configure. If you pass None, it won't get changed.
     :type feature: FeatureFlag
     :param enable: `True`, to enable the feature; `False` to disable it.
+    :param if_not_yet_configured: configure only if this has not yet been configured
     """
     if enable is None:
+        return
+    if not if_not_yet_configured and _features[feature] is None:
         return
     _features[feature] = enable

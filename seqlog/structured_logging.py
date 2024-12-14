@@ -17,7 +17,7 @@ from queue import Queue
 import requests
 
 from seqlog.consumer import QueueConsumer
-from seqlog.feature_flags import FeatureFlag, is_feature_enabled
+from seqlog.feature_flags import FeatureFlag, is_feature_enabled, configure_feature
 
 # Well-known keyword arguments used by the logging system.
 _well_known_logger_kwargs = {"extra", "exc_info", "func", "sinfo"}
@@ -165,19 +165,55 @@ class StructuredLogRecord(logging.LogRecord):
             return self.msg
 
 
+_root_logger_overrided = False
+
+
+def _override_root_logger():
+    """
+    Override the root logger with a `StructuredRootLogger`.
+    """
+    global _root_logger_overrided
+    if _root_logger_overrided:
+        return
+    logging.root = StructuredRootLogger(logging.WARNING)
+    logging.Logger.root = logging.root
+    logging.Logger.manager = logging.Manager(logging.Logger.root)
+    _root_logger_overrided = True
+
+
+class BaseStructuredLogHandler(logging.Handler):
+    """
+    Base structured logger to set up all of the arguments previously required.
+
+    :param override_root_logger: whether to override the root logger, default is True
+    :param support_extra_properties: logger will support named arguments instead of passing them via extra
+    :param stack_info: attach stack info
+    :param ignore_seq_submission_errors: whether to ignore submission errors
+    :param use_clef: whether to use CLEF
+    """
+    def __init__(self, *args, level=logging.NOTSET, override_root_logger=True, **kwargs):
+        logging.Handler.__init__(self, level)
+
+        if override_root_logger:
+            _override_root_logger()
+
+        if kwargs.pop('use_structured_logger', None):
+            logging.setLoggerClass(StructuredLogger)
+
+        if kwargs.pop('support_extra_properties', None):
+            configure_feature(FeatureFlag.EXTRA_PROPERTIES, True, if_not_yet_configured=True)
+        if kwargs.pop('stack_info', None):
+            configure_feature(FeatureFlag.STACK_INFO, True, if_not_yet_configured=True)
+        if kwargs.pop('ignore_seq_submission_errors', None):
+            configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, True, if_not_yet_configured=True)
+        if kwargs.pop('use_clef', None):
+            configure_feature(FeatureFlag.USE_CLEF, True, if_not_yet_configured=True)
+
+
 class StructuredLogger(logging.Logger):
     """
     Custom (dummy) logger that understands named log arguments.
     """
-
-    def __init__(self, name, level=logging.NOTSET):
-        """
-        Create a new StructuredLogger
-        :param name: The logger name.
-        :param level: The logger minimum level (severity).
-        """
-
-        super().__init__(name, level)
 
     @property
     def _support_extra_properties(self):
@@ -310,16 +346,19 @@ class StructuredRootLogger(logging.RootLogger):
         return super().makeRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo)
 
 
-class ConsoleStructuredLogHandler(logging.Handler):
-    def __init__(self):
-        super().__init__()
+class ConsoleStructuredLogHandler(BaseStructuredLogHandler):
+
+    def __init__(self, *args, use_stdout=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_stdout = use_stdout
 
     def emit(self, record):
         msg = self.format(record)
 
-        print(msg)
+        out = sys.stdout if self.use_stdout else sys.stderr
+        out.write(msg)
         if hasattr(record, 'kwargs'):
-            print("\tLog entry properties: {}".format(repr(record.kwargs)))
+            out.write("\tLog entry properties: {}\n".format(repr(record.kwargs)))
 
 
 def best_effort_json_encode(arg):
@@ -343,12 +382,13 @@ def best_effort_json_encode(arg):
         return arg
 
 
-class SeqLogHandler(logging.Handler):
+class SeqLogHandler(BaseStructuredLogHandler):
     """
     Log handler that posts to Seq.
     """
 
-    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None, json_encoder_class=None):
+    def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None, json_encoder_class=None,
+                 **kwargs):
         """
         Create a new `SeqLogHandler`.
 
@@ -360,7 +400,7 @@ class SeqLogHandler(logging.Handler):
         :param json_encoder_class: The custom JSON encoder class (or fully-qualified class name), if any, to use.
         """
 
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.base_server_url = server_url
         if not self.base_server_url.endswith("/"):
