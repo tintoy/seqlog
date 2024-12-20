@@ -391,7 +391,7 @@ class SeqLogHandler(BaseStructuredLogHandler):
         :param use_clef: whether to use the CLEF format
         :param ignore_seq_submission_errors: whether to ignore failures to send logs to Seq
         :param support_stack_info: whether to recognize stack_info as an alternative to exc_info (with some limitations)
-        :poram support_extra_properties: whether to natively recognize kwargs (if True) or supply them as extra
+        :param support_extra_properties: whether to natively recognize kwargs (if True) or supply them as extra
                                         (if False).
         """
 
