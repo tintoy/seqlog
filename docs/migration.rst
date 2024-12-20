@@ -10,13 +10,12 @@ Alternatively you can call
 
 .. autofunction:: seqlog.configure_from_file
 
-
-.. warning:: DO NOT call :code:`logging.config.fromDict`
+.. warning:: DO NOT call :code:`logging.config.fromDict` directly.
 
 Then, FeatureFlags were completely obliterated and moved to SeqLogHandler's constructor.
 
-Then, the SeqLogHandler accepts way more arguments that you can define in this dict:
+Then, the SeqLogHandler accepts way more arguments, that you can define in the dictionary supporting the configuration:
 
 .. autoclass:: seqlog.structured_logging.SeqLogHandler
-    :members:
+
 
