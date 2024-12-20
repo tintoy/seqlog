@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 autodoc_default_options = {
-    'members': True,
+
 }
 autodoc_default_flags = [
     'show-inheritance'
