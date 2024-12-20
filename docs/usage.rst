@@ -2,7 +2,15 @@
 Usage
 =====
 
-Recommended way is to use logging.config.dictConfig().
+Recommended way is to use 
+
+.. autofunction:: seqlog.configure_from_dict
+
+or 
+
+.. autofunction:: seqlog.configure_from_file
+
+This way you can leverage the Python logging configuration syntax.
 
 Configure logging programmatically
 ----------------------------------

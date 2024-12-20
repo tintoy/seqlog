@@ -2,13 +2,9 @@
 Migration guide from 0.4 to 0.5
 ===============================
 
-First of all, the official way to configure Seq is via
+First of all, the official way to configure Seq is via :func:`seqlog.configure_from_dict`
 
-.. autofunction:: seqlog.configure_from_dict
-
-Alternatively you can call
-
-.. autofunction:: seqlog.configure_from_file
+Alternatively you can call :func:`seqlog.configure_from_file`.
 
 .. warning:: DO NOT call :code:`logging.config.fromDict` directly.
 
