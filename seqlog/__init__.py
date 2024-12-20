@@ -24,8 +24,6 @@ def configure_from_file(file_name):
     """
     Configure Seq logging using YAML-format configuration file. Essentially loads the YAML, and invokes
     :func:`configure_from_dict`.
-
-    Uses `logging.config.dictConfig()`.
     """
 
     with open(file_name) as config_file:
