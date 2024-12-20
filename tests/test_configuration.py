@@ -24,6 +24,8 @@ version: 1
 disable_existing_loggers: True
 
 # Configure the root logger to use Seq
+override_root_logger: True
+use_structured_logger: True
 root:
   level: 'DEBUG'
   handlers:
@@ -32,8 +34,6 @@ handlers:
   console:
     class: seqlog.structured_logging.ConsoleStructuredLogHandler
     formatter: standard
-    override_root_logger: True
-    use_structured_logging: True
 formatters:
   standard:
     format: '[%(levelname)s] %(asctime)s %(name)s: %(message)s'

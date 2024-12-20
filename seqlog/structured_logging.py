@@ -17,7 +17,6 @@ from queue import Queue
 import requests
 
 from seqlog.consumer import QueueConsumer
-from seqlog.feature_flags import FeatureFlag, is_feature_enabled, configure_feature
 
 # Well-known keyword arguments used by the logging system.
 _well_known_logger_kwargs = {"extra", "exc_info", "func", "sinfo"}
@@ -165,59 +164,25 @@ class StructuredLogRecord(logging.LogRecord):
             return self.msg
 
 
-_root_logger_overrided = False
-
-
 def _override_root_logger():
     """
     Override the root logger with a `StructuredRootLogger`.
     """
-    global _root_logger_overrided
-    if _root_logger_overrided:
-        return
     logging.root = StructuredRootLogger(logging.WARNING)
     logging.Logger.root = logging.root
     logging.Logger.manager = logging.Manager(logging.Logger.root)
-    _root_logger_overrided = True
 
 
 class BaseStructuredLogHandler(logging.Handler):
-    """
-    Base structured logger to set up all of the arguments previously required.
-
-    :param override_root_logger: whether to override the root logger, default is True
-    :param support_extra_properties: logger will support named arguments instead of passing them via extra
-    :param stack_info: attach stack info
-    :param ignore_seq_submission_errors: whether to ignore submission errors
-    :param use_clef: whether to use CLEF
-    """
-    def __init__(self, *args, level=logging.NOTSET, override_root_logger=True, **kwargs):
-        logging.Handler.__init__(self, level)
-
-        if override_root_logger:
-            _override_root_logger()
-
-        if kwargs.pop('use_structured_logger', None):
-            logging.setLoggerClass(StructuredLogger)
-
-        if kwargs.pop('support_extra_properties', None):
-            configure_feature(FeatureFlag.EXTRA_PROPERTIES, True, if_not_yet_configured=True)
-        if kwargs.pop('stack_info', None):
-            configure_feature(FeatureFlag.STACK_INFO, True, if_not_yet_configured=True)
-        if kwargs.pop('ignore_seq_submission_errors', None):
-            configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, True, if_not_yet_configured=True)
-        if kwargs.pop('use_clef', None):
-            configure_feature(FeatureFlag.USE_CLEF, True, if_not_yet_configured=True)
+    def __init__(self, level=logging.NOTSET, *args, support_extra_properties=False, **kwargs):
+        logging.Handler.__init__(self, level=level)
+        self.support_extra_properties = support_extra_properties
 
 
 class StructuredLogger(logging.Logger):
     """
     Custom (dummy) logger that understands named log arguments.
     """
-
-    @property
-    def _support_extra_properties(self):
-        return is_feature_enabled(FeatureFlag.EXTRA_PROPERTIES)
 
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, **kwargs):
         """
@@ -226,7 +191,7 @@ class StructuredLogger(logging.Logger):
         :param msg: The log message or message template.
         :param args: Ordinal arguments for the message format template.
         :param exc_info: Exception information to be included in the log entry.
-        :param extra: Extra information to be included in the log entry.
+        :param extra: Extra information to be included in the log entry. Note that this will take precedence over kwargs.
         :param stack_info: Include stack-trace information in the log entry?
         :param kwargs: Keyword arguments (if any) passed to the public logger method that called _log.
         """
@@ -247,7 +212,7 @@ class StructuredLogger(logging.Logger):
 
             log_props[prop] = kwargs[prop]
 
-        if extra and self._support_extra_properties:
+        if extra:
             for extra_prop in extra.keys():
                 log_props['Extra_' + extra_prop] = extra[extra_prop]
 
@@ -388,7 +353,8 @@ class SeqLogHandler(BaseStructuredLogHandler):
     """
 
     def __init__(self, server_url, api_key=None, batch_size=10, auto_flush_timeout=None, json_encoder_class=None,
-                 **kwargs):
+                 use_clef: bool = False, ignore_seq_submission_errors: bool = False, support_stack_info: bool = False,
+                 support_extra_properties: bool = False, **kwargs):
         """
         Create a new `SeqLogHandler`.
 
@@ -398,14 +364,26 @@ class SeqLogHandler(BaseStructuredLogHandler):
         :param auto_flush_timeout: If specified, the time (in seconds) before
                                    the current batch is automatically flushed.
         :param json_encoder_class: The custom JSON encoder class (or fully-qualified class name), if any, to use.
+        :param use_clef: whether to use the CLEF format
+        :param ignore_seq_submission_errors: whether to ignore failures to send logs to Seq
+        :param support_stack_info: whether to recognize stack_info as an alternative to exc_info (with some limitations)
+        :poram support_extra_properties: whether to natively recognize kwargs (if True) or supply them as extra
+                                        (if False).
         """
 
-        super().__init__(**kwargs)
+        super().__init__(support_extra_properties=support_extra_properties, **kwargs)
 
-        self.base_server_url = server_url
-        if not self.base_server_url.endswith("/"):
-            self.base_server_url += "/"
+        server_url = server_url
+        if not server_url.endswith("/"):
+            server_url += "/"
 
+        if use_clef:
+            self.server_url = server_url + 'ingest/clef'
+        else:
+            self.server_url = server_url + 'api/events/raw'
+
+        self.support_stack_info = support_stack_info
+        self.ignore_seq_submission_errors = ignore_seq_submission_errors
         self.session = requests.Session()
 
         if api_key:
@@ -413,7 +391,7 @@ class SeqLogHandler(BaseStructuredLogHandler):
 
         json_encoder_class = json_encoder_class or json.encoder.JSONEncoder
         self.json_encoder_class = _ensure_class(json_encoder_class, compatible_class=json.encoder.JSONEncoder)
-
+        self.use_clef = use_clef
         self.log_queue = Queue()
         self.consumer = QueueConsumer(
             name="SeqLogHandler",
@@ -423,24 +401,6 @@ class SeqLogHandler(BaseStructuredLogHandler):
             auto_flush_timeout=auto_flush_timeout
         )
         self.consumer.start()
-
-    @property
-    def server_url(self):
-        if self._use_clef:
-            return self.base_server_url + 'ingest/clef'
-        return self.base_server_url + 'api/events/raw'
-
-    @property
-    def _use_clef(self):
-        return is_feature_enabled(FeatureFlag.USE_CLEF)
-
-    @property
-    def _support_stack_info(self):
-        return is_feature_enabled(FeatureFlag.STACK_INFO)
-
-    @property
-    def _ignore_seq_submission_errors(self):
-        return is_feature_enabled(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS)
 
     def flush(self):
         try:
@@ -496,7 +456,7 @@ class SeqLogHandler(BaseStructuredLogHandler):
                 continue
             processed_records.append(resp)
 
-        if self._use_clef:
+        if self.use_clef:
             request_body_json = '\r\n'.join(processed_records)
         else:
             request_body_json = '{"Events": [%s]}' % (','.join(processed_records), )
@@ -507,12 +467,12 @@ class SeqLogHandler(BaseStructuredLogHandler):
             response = self.session.post(
                 self.server_url,
                 data=request_body_json,
-                headers={'Content-Type': "application/vnd.serilog.clef" if self._use_clef else 'application/json'},
+                headers={'Content-Type': "application/vnd.serilog.clef" if self.use_clef else 'application/json'},
                 stream=True  # prevent '362'
             )
             response.raise_for_status()
         except requests.RequestException as requestFailed:
-            if not self._ignore_seq_submission_errors:
+            if not self.ignore_seq_submission_errors:
                 # Only notify for the first record in the batch, or we'll be generating too much noise.
                 self.handleError(batch[0])
 
@@ -544,7 +504,7 @@ class SeqLogHandler(BaseStructuredLogHandler):
             _callback_on_failure(exception)
 
     def _build_event_data(self, record):
-        if self._use_clef:
+        if self.use_clef:
             return self._build_event_data_clef(record)
         else:
             return self._build_event_data_ingest(record)
@@ -588,12 +548,12 @@ class SeqLogHandler(BaseStructuredLogHandler):
         if record.exc_text:
             # Rendered exception has already been cached
             event_data["Exception"] = record.exc_text
-        elif self._support_stack_info and record.stack_info and not record.exc_info:
+        elif self.support_stack_info and record.stack_info and not record.exc_info:
             # Feature flag is set: fall back to stack_info (sinfo) if exc_info is not present
             event_data["Exception"] = record.stack_info
         elif isinstance(record.exc_info, tuple):
             # Exception info is present
-            if record.exc_info[0] is None and self._support_stack_info and record.stack_info:
+            if record.exc_info[0] is None and self.support_stack_info and record.stack_info:
                 event_data["Exception"] = "{0}--NoException\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
             else:
                 event_data["Exception"] = record.exc_text = self.formatter.formatException(record.exc_info)
@@ -651,12 +611,12 @@ class SeqLogHandler(BaseStructuredLogHandler):
         if record.exc_text:
             # Rendered exception has already been cached
             event_data["@x"] = record.exc_text
-        elif self._support_stack_info and record.stack_info and not record.exc_info:
+        elif self.support_stack_info and record.stack_info and not record.exc_info:
             # Feature flag is set: fall back to stack_info (sinfo) if exc_info is not present
             event_data["@x"] = record.stack_info
         elif isinstance(record.exc_info, tuple):
             # Exception info is present
-            if record.exc_info[0] is None and self._support_stack_info and record.stack_info:
+            if record.exc_info[0] is None and self.support_stack_info and record.stack_info:
                 event_data["@x"] = "{0}--NoException\n{1}".format(logging.getLevelName(record.levelno), record.stack_info)
             else:
                 event_data["@x"] = record.exc_text = self.formatter.formatException(record.exc_info)

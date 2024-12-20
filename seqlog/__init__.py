@@ -7,7 +7,6 @@ import warnings
 
 import yaml
 
-from seqlog.feature_flags import FeatureFlag, configure_feature
 from seqlog.structured_logging import StructuredLogger, StructuredRootLogger, _override_root_logger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
@@ -23,7 +22,8 @@ __version__ = '0.5.0'
 
 def configure_from_file(file_name):
     """
-    Configure Seq logging using YAML-format configuration file.
+    Configure Seq logging using YAML-format configuration file. Essentially loads the YAML, and invokes
+    :func:`configure_from_dict`.
 
     Uses `logging.config.dictConfig()`.
     """
@@ -31,24 +31,25 @@ def configure_from_file(file_name):
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
-    logging.config.dictConfig(config)
+    configure_from_dict(config)
 
 
 def configure_from_dict(config):
     """
-    Configure Seq logging using a dictionary.
+    Configure Seq logging using a dictionary. Use it instead of logging.config.dictConfig().
 
-    Uses `logging.config.dictConfig()`.
+    Extra parameters you can specify (as dictionary keys).
 
-    .. deprecated: 0.5.0
-        Use logging.config.dictConfig() directly.
+    * `use_structured_logger` - this will configure Python logging environment to use a StructuredLogger, ie. one that
+       understands keyword arguments
+    * `override_root_logger` - overrides root logger with a StructuredLogger
 
-    Note that if you provide None to any of the default arguments, it just won't get changed (ie. it will stay the same).
-
-    :param config: A dict containing the configuration.
-    :type config: dict
+    The rest will be passed onto logging.config.dictConfig()
     """
-    warnings.warn('This is deprecated, use logging.config.dictConfig() directly', DeprecationWarning)
+    if config.pop('use_structured_logger', False):
+        logging.setLoggerClass(StructuredLogger)
+    if config.pop('override_root_logger', False):
+        _override_root_logger()
     logging.config.dictConfig(config)
 
 
@@ -86,19 +87,15 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
-    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
-    configure_feature(FeatureFlag.USE_CLEF, use_clef)
-
     logging.setLoggerClass(StructuredLogger)
 
     if override_root_logger:
         _override_root_logger()
 
     log_handlers = [
-        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
+        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class,
+                      support_extra_properties=support_extra_properties, support_stack_info=support_stack_info,
+                      use_clef=use_clef, ignore_seq_submission_errors=ignore_seq_submission_errors)
     ]
 
     if additional_handlers:

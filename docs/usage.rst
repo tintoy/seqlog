@@ -58,6 +58,8 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
 
     # Configure logging from scratch.
     disable_existing_loggers: True
+    override_root_logger: True
+    use_structured_logger: True
 
     # Configure the root logger to use Seq
     root:
@@ -98,7 +100,7 @@ First, create your configuration file (e.g. ``/foo/bar/my_config.yml``):
       seq:
         style: '{'
 
-Then, call ``seqlog.configure_from_file()``:
+Then, call :func:`seqlog.configure_from_file`:
 
 .. code-block:: python
 
@@ -115,11 +117,9 @@ Then, call ``seqlog.configure_from_file()``:
 Configuring logging from a dictionary
 -------------------------------------
 
-.. deprecated:: 0.5.0
-    Use logging.config.dictConfig() directly
-
 Seqlog can also use a dictionary to describe the desired logging configuration.
 This dictionary has the schema specified in Python's `logging.config <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`_ module.
+With some extra options described in :func:`seqlog.configure_from_dict`.
 
 .. code-block:: python
 
@@ -137,29 +137,6 @@ This dictionary has the schema specified in Python's `logging.config <https://do
     another_logger = logging.getLogger('another_logger')
     another_logger.info('This is another logger.')
 
-Note that you can pass flags that were previously given to :func:`seqlog.configure_from_dict` directly in the dictionary, eg.
-
-.. autofunction:: seqlog.configure_from_dict
-
-.. code-block:: python
-
-    a['handlers']['console'] = {
-        'class': 'seqlog.structured_logging.ConsoleStructuredLogHandler',
-        'formatter': 'standard'
-        'override_root_logger': True
-        'use_structured_logging': True,
-        'use_clef': True        
-    }
-    logging.config.dictConfig(a)
-
-Basically all of the arguments in
-
-.. autoclass:: seqlog.structured_logging.BaseStructuredLogHandler
-
-can be put there.
-
-Note that only first arguments that were previously passed globally will be set. Argument configured once in one logger
-won't pass to another.
 
 Batching and auto-flush
 -----------------------
