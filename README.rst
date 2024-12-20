@@ -2,6 +2,8 @@
 SeqLog
 ===============================
 
+.. image:: https://github.com/tintoy/seqlog/actions/workflows/tox.yml/badge.svg
+        :target: https://github.com/tintoy/seqlog
 
 .. image:: https://img.shields.io/pypi/v/seqlog.svg
         :target: https://pypi.python.org/pypi/seqlog
