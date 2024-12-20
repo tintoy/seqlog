@@ -54,6 +54,16 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+autodoc_default_options = {
+    'members': True,
+}
+autodoc_default_flags = [
+    'show-inheritance'
+]
+autodoc_typehints = "description"
+autoclass_content = 'both'
+
+
 # General information about the project.
 project = u'SeqLog'
 copyright = u"2016, Adam Friedman"

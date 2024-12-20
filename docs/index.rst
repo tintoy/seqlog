@@ -17,6 +17,7 @@ Contents:
 
    readme
    installation
+   migration
    usage
    usage-gunicorn
    Modules <api/modules>
