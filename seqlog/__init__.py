@@ -112,7 +112,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     return log_handlers[0]
 
 
-def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, support_stack_info=False, **kwargs):
+def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, **kwargs):
     """
     Configure the logging system to send log entries to the console.
 
@@ -124,12 +124,7 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
                                  when using the logging.XXX functions.
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
-    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
-    :type support_stack_info: bool
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     logging.setLoggerClass(StructuredLogger)
 
@@ -139,7 +134,7 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
     logging.basicConfig(
         style='{',
         handlers=[
-            ConsoleStructuredLogHandler()
+            ConsoleStructuredLogHandler(support_extra_properties=support_extra_properties)
         ],
         level=level,
         **kwargs
