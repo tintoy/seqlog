@@ -12,8 +12,7 @@ import logging
 
 import tests.assertions as expect
 
-from seqlog import clear_global_log_properties
-from seqlog.structured_logging import StructuredLogger
+from seqlog.structured_logging import StructuredLogger, clear_global_log_properties
 from tests.stubs import StubStructuredLogHandler
 
 

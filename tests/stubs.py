@@ -1,9 +1,11 @@
 import logging
 
+from seqlog.structured_logging import BaseStructuredLogHandler
 
-class StubStructuredLogHandler(logging.Handler):
-    def __init__(self):
-        super().__init__()
+
+class StubStructuredLogHandler(BaseStructuredLogHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.records = []
         self.messages = []
