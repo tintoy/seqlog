@@ -24,7 +24,7 @@ test_requirements = [
     'tox>=2.3.1',
     'coverage>=4.1',
     'Sphinx>=1.4.4',
-    'cryptography==42.0.4',
+    'cryptography==44.0.1',
     'PyYAML>=3.11',
     'pytest>=2.9.2',
     'httmock>=1.2.5'
