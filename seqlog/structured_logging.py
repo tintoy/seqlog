@@ -158,7 +158,7 @@ class StructuredLogRecord(logging.LogRecord):
         elif self.log_props:
             try:
                 return self.msg.format(**self.log_props)
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, ValueError):
                 # IndexError because sometimes the wrong log messages go like {existing_prop[0]}
                 return self.msg   # handle the situation where we have braces in the logging value
         else:
