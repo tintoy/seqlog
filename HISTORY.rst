@@ -2,8 +2,13 @@
 History
 =======
 
-Current (0.4.0)  - (unreleased yet)
------------------------------------
+0.4.1 (2025-05-11)
+------------------
+
+* A bugfix to catch `ValueError`\s when formatting messages (tintoy/seqlog#87).
+
+0.4.0 (2024-12-08)
+------------------
 
 * You can enable and disable all of the feature flags at runtime
 * Added support for the `CLEF submission format <https://docs.datalust.co/docs/posting-raw-events>`_.
