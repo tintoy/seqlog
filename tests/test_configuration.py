@@ -38,6 +38,7 @@ formatters:
     format: '[%(levelname)s] %(asctime)s %(name)s: %(message)s'
 """
 
+
 class TestConfiguration(object):
     def test_valid_config(self):
         try:
