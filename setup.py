@@ -37,7 +37,7 @@ test_requirements = [
 
 setup(
     name='seqlog',
-    version='0.4.1',
+    version='0.4.2',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
     long_description_content_type='text/x-rst',

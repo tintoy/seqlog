@@ -16,7 +16,7 @@ from seqlog.structured_logging import set_callback_on_failure as _set_callback_o
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False,
