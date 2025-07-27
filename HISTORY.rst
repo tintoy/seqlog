@@ -2,6 +2,11 @@
 History
 =======
 
+0.4.2 (2025-07-26)
+------------------
+
+* A bugfix to correctly propagate `MessageTemplate` / `@mt` to Seq (tintoy/seqlog#88).
+
 0.4.1 (2025-05-11)
 ------------------
 
