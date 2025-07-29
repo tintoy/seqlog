@@ -3,11 +3,16 @@
 
 from setuptools import setup
 
+def normalize_line_endings(text: str):
+    return text.replace('\r\n', '\n').replace('\r', '\n')
+
 with open('README.rst') as readme_file:
     readme = readme_file.read()
+    readme = normalize_line_endings(readme)
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
+    history = normalize_line_endings(history)
 
 requirements = [
     'python_dateutil>=2.5.3',
@@ -35,6 +40,7 @@ setup(
     version='0.5.0',
     description="SeqLog enables logging from Python to Seq.",
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/x-rst',
     author="Adam Friedman",
     author_email='tintoy@tintoy.io',
     url='https://github.com/tintoy/seqlog',

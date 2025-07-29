@@ -157,10 +157,34 @@ class StructuredLogRecord(logging.LogRecord):
         elif self.log_props:
             try:
                 return self.msg.format(**self.log_props)
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, ValueError):
                 # IndexError because sometimes the wrong log messages go like {existing_prop[0]}
                 return self.msg   # handle the situation where we have braces in the logging value
         else:
+            return self.msg
+
+    def getMessageTemplate(self):
+        """
+        Get the raw (unformatted) message template used to generate the message for the log record (used in cases where formatting will be performed by the target that receives the published log record).
+        :return: The message template.
+        """
+
+        if self.msg is None:
+            warnings.warn('You just passed a None as a message content!', UserWarning)
+            self.msg = ''
+
+        # See https://docs.python.org/3/library/logging.html#logging.LogRecord.getMessage for details
+        if not isinstance(self.msg, str):
+            self.msg = str(self.msg)
+
+        if self.args:
+            # Not using {NamedHole}-style formatting, so we still return the formatted log message (since we don't have a _compatible_ message template).
+            return self.getMessage()
+        elif self.log_props:
+            # We're using using {NamedHole}-style formatting, so msg is the message template.
+            return self.msg
+        else:
+            # in this case, we have no message template, and so we can safely assume that the message itself is the message template.
             return self.msg
 
 
@@ -521,10 +545,15 @@ class SeqLogHandler(BaseStructuredLogHandler):
 
         logger_name = record.name if record.name else None
 
+        if isinstance(record, StructuredLogRecord):
+            message_template = record.getMessageTemplate()
+        else:
+            message_template = record.getMessage()
+
         event_data = {
             "Timestamp": _get_local_timestamp(record),
             "Level": logging.getLevelName(record.levelno),
-            "MessageTemplate": record.getMessage(),
+            "MessageTemplate": message_template,
             "Properties": get_global_log_properties(logger_name)
         }
 
@@ -579,10 +608,15 @@ class SeqLogHandler(BaseStructuredLogHandler):
 
         logger_name = record.name if record.name else None
 
+        if isinstance(record, StructuredLogRecord):
+            message_template = record.getMessageTemplate()
+        else:
+            message_template = record.getMessage()
+
         event_data = {
             "@t": _get_local_timestamp(record, True),
             "@l": logging.getLevelName(record.levelno),
-            "@mt": record.getMessage(),
+            "@mt": message_template,
         }
         props = {}
         for key, value in get_global_log_properties(logger_name).items():

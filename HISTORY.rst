@@ -3,8 +3,8 @@ History
 =======
 
 
-0.5.0 - (2024-12-20)
---------------------
+0.5.0 (2024-12-20)
+------------------
 
 * made the configuration a little bit more Pythonic
 * FeatureFlags were removed
@@ -12,8 +12,18 @@ History
 * `support_stack_info` was removed from `log_to_console`
 * you can choose whether ConsoleStructuredLogHandler will log to stdout or to stderr.
 
-0.4.0  - (2024-12-8)
---------------------
+0.4.2 (2025-07-26)
+------------------
+
+* A bugfix to correctly propagate `MessageTemplate` / `@mt` to Seq (tintoy/seqlog#88).
+
+0.4.1 (2025-05-11)
+------------------
+
+* A bugfix to catch `ValueError`\s when formatting messages (tintoy/seqlog#87).
+
+0.4.0 (2024-12-08)
+------------------
 
 * You can enable and disable all of the feature flags at runtime
 * Added support for the `CLEF submission format <https://docs.datalust.co/docs/posting-raw-events>`_.
