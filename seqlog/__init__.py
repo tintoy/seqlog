@@ -3,10 +3,11 @@
 import logging
 import logging.config
 import typing
+import warnings
+
 import yaml
 
-from seqlog.feature_flags import FeatureFlag, configure_feature
-from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
+from seqlog.structured_logging import StructuredLogger, StructuredRootLogger, _override_root_logger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
 from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
@@ -16,79 +17,37 @@ from seqlog.structured_logging import set_callback_on_failure as _set_callback_o
 
 __author__ = 'Adam Friedman'
 __email__ = 'tintoy@tintoy.io'
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 
 
-def configure_from_file(file_name, override_root_logger=True, support_extra_properties=False, support_stack_info=False, ignore_seq_submission_errors=False,
-                        use_clef=False):
+def configure_from_file(file_name):
     """
-    Configure Seq logging using YAML-format configuration file.
-
-    Uses `logging.config.dictConfig()`.
-
-    :param file_name: The name of the configuration file to use.
-    :type file_name: str
-    :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
-    :type override_root_logger: bool
-    :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
-    :type support_extra_properties: bool
-    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
-    :type support_stack_info: bool
-    :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
-    :type ignore_seq_submission_errors: bool
-    :param use_clef: use the newer submission format CLEF
-    :type use_clef: bool
+    Configure Seq logging using YAML-format configuration file. Essentially loads the YAML, and invokes
+    :func:`configure_from_dict`.
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
-    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
-    configure_feature(FeatureFlag.USE_CLEF, use_clef)
 
     with open(file_name) as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
-    configure_from_dict(config, override_root_logger, True)
+    configure_from_dict(config)
 
 
-def configure_from_dict(config, override_root_logger=True, use_structured_logger=True, support_extra_properties=None,
-                        support_stack_info=None, ignore_seq_submission_errors=None,
-                        use_clef=None):
+def configure_from_dict(config):
     """
-    Configure Seq logging using a dictionary.
+    Configure Seq logging using a dictionary. Use it instead of logging.config.dictConfig().
 
-    Uses `logging.config.dictConfig()`.
+    Extra parameters you can specify (as dictionary keys).
 
-    Note that if you provide None to any of the default arguments, it just won't get changed (ie. it will stay the same).
+    * `use_structured_logger` - this will configure Python logging environment to use a StructuredLogger, ie. one that
+       understands keyword arguments
+    * `override_root_logger` - overrides root logger with a StructuredLogger
 
-    :param config: A dict containing the configuration.
-    :type config: dict
-    :param override_root_logger: Override the root logger to use a Seq-specific implementation? (default: True)
-    :type override_root_logger: bool
-    :param use_structured_logger: Configure the default logger class to be StructuredLogger, which support named format arguments? (default: True)
-    :type use_structured_logger: bool
-    :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
-    :type support_extra_properties: bool
-    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
-    :type support_stack_info: bool
-    :param ignore_seq_submission_errors: Ignore errors encountered while sending log records to Seq?
-    :type ignore_seq_submission_errors: bool
-    :param use_clef: use the newer submission format CLEF
-    :type use_clef: bool
+    The rest will be passed onto logging.config.dictConfig()
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
-    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
-    configure_feature(FeatureFlag.USE_CLEF, use_clef)
-
-    if override_root_logger:
-        _override_root_logger()
-
-    # Must use StructuredLogger to support named format argments.
-    if use_structured_logger:
+    if config.pop('use_structured_logger', False):
         logging.setLoggerClass(StructuredLogger)
-
+    if config.pop('override_root_logger', False):
+        _override_root_logger()
     logging.config.dictConfig(config)
 
 
@@ -126,19 +85,15 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     :return: The `SeqLogHandler` that sends events to Seq. Can be used to forcibly flush records to Seq.
     :rtype: SeqLogHandler
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
-    configure_feature(FeatureFlag.IGNORE_SEQ_SUBMISSION_ERRORS, ignore_seq_submission_errors)
-    configure_feature(FeatureFlag.USE_CLEF, use_clef)
-
     logging.setLoggerClass(StructuredLogger)
 
     if override_root_logger:
         _override_root_logger()
 
     log_handlers = [
-        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class)
+        SeqLogHandler(server_url, api_key, batch_size, auto_flush_timeout, json_encoder_class,
+                      support_extra_properties=support_extra_properties, support_stack_info=support_stack_info,
+                      use_clef=use_clef, ignore_seq_submission_errors=ignore_seq_submission_errors)
     ]
 
     if additional_handlers:
@@ -155,7 +110,7 @@ def log_to_seq(server_url, api_key=None, level=logging.WARNING,
     return log_handlers[0]
 
 
-def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, support_stack_info=False, **kwargs):
+def log_to_console(level=logging.WARNING, override_root_logger=False, support_extra_properties=False, **kwargs):
     """
     Configure the logging system to send log entries to the console.
 
@@ -167,12 +122,7 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
                                  when using the logging.XXX functions.
     :param support_extra_properties: Support passing of additional properties to log via the `extra` argument?
     :type support_extra_properties: bool
-    :param support_stack_info: Support attaching of stack-trace information (if available) to log records?
-    :type support_stack_info: bool
     """
-
-    configure_feature(FeatureFlag.EXTRA_PROPERTIES, support_extra_properties)
-    configure_feature(FeatureFlag.STACK_INFO, support_stack_info)
 
     logging.setLoggerClass(StructuredLogger)
 
@@ -182,7 +132,7 @@ def log_to_console(level=logging.WARNING, override_root_logger=False, support_ex
     logging.basicConfig(
         style='{',
         handlers=[
-            ConsoleStructuredLogHandler()
+            ConsoleStructuredLogHandler(support_extra_properties=support_extra_properties)
         ],
         level=level,
         **kwargs
@@ -237,12 +187,3 @@ def clear_global_log_properties():
 
     _clear_global_log_properties()
 
-
-def _override_root_logger():
-    """
-    Override the root logger with a `StructuredRootLogger`.
-    """
-
-    logging.root = StructuredRootLogger(logging.WARNING)
-    logging.Logger.root = logging.root
-    logging.Logger.manager = logging.Manager(logging.Logger.root)

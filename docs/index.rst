@@ -17,10 +17,10 @@ Contents:
 
    readme
    installation
+   migration
    usage
    usage-gunicorn
    Modules <api/modules>
-   feature_flags
    contributing
    authors
    history
