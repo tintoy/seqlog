@@ -36,7 +36,7 @@ logger3.info("By, %s!", "moon")
 
 try:
     raise Exception("Hello world!")
-except:
+except Exception:
     logger1.error("Encountered an error!", exc_info=1)
 
 print("Sleeping...")

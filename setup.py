@@ -3,8 +3,10 @@
 
 from setuptools import setup
 
+
 def normalize_line_endings(text: str):
     return text.replace('\r\n', '\n').replace('\r', '\n')
+
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -68,4 +70,3 @@ setup(
     test_suite='tests',
     tests_require=test_requirements
 )
-
