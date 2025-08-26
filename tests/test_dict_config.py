@@ -48,7 +48,6 @@ TEST_CONFIG = {
 
 class TestDictConfig():
     def test_logger_with_dict_config(self):
-        global TEST_CONFIG
         test_levels = {
             "critical": seqlog.logging.CRITICAL,
             "error": seqlog.logging.ERROR,
