@@ -33,7 +33,7 @@ jobs:
           python -m bumpversion custom --new-version $DIST_VERSION --no-commit --no-tag
 
           echo "Building..."
-          python ./setup.py sdist bdist bdist_wheel
+          python ./setup.py sdist bdist_wheel
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -68,4 +68,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
-          verify_metadata: 'false'
+          verify-metadata: 'false'
