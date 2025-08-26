@@ -10,3 +10,4 @@ cryptography==42.0.4
 PyYAML>=3.11
 pytest>=2.9.2
 httmock>=1.2.5
+setuptools>=68.0.0
