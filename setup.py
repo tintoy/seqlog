@@ -49,8 +49,12 @@ setup(
     packages=[
         'seqlog',
     ],
-    package_dir={'seqlog':
-                 'seqlog'},
+    py_modules=[
+        'seqlog',
+    ],
+    package_dir={
+        'seqlog': 'seqlog'
+    },
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",
