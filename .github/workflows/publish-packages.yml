@@ -30,7 +30,7 @@ jobs:
         run: |
           DIST_VERSION=${{ github.event.release.name }}
           echo "Will publish seqlog v$DIST_VERSION..."
-          python -m bumpversion custom --new-version $DIST_VERSION --no-commit --no-tag --verbose
+          python -m bumpversion custom --new-version $DIST_VERSION --no-commit --no-tag
 
           echo "Building..."
           python ./setup.py sdist bdist bdist_wheel

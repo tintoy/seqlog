@@ -2,6 +2,11 @@
 History
 =======
 
+0.4.3 (2025-07-26)
+------------------
+
+* Implement CI and automatic package publishing to PyPI (tintoy/seqlog#94).
+
 0.4.2 (2025-07-26)
 ------------------
 
